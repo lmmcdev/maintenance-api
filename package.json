@@ -1,0 +1,28 @@
+{
+  "name": "maintenance-api",
+  "version": "1.0.0",
+  "description": "A maintenance API for managing tickets",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "tsc",
+    "watch": "tsc -w",
+    "clean": "rimraf dist",
+    "prestart": "npm run clean && npm run build",
+    "start": "func start",
+    "test": "echo \"No tests yet...\""
+  },
+  "dependencies": {
+    "@azure/cosmos": "^4.5.0",
+    "@azure/functions": "^4.0.0",
+    "http-status": "^2.1.0",
+    "uuid": "^11.1.0",
+    "zod": "^4.1.4"
+  },
+  "devDependencies": {
+    "@types/node": "^20.19.11",
+    "azure-functions-core-tools": "^4.x",
+    "rimraf": "^5.0.0",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.9.2"
+  }
+}

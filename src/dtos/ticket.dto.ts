@@ -1,0 +1,81 @@
+import { v4 as uuid } from "uuid";
+import { AttachmentRef } from "../models/attachment.model";
+import { PersonRef } from "../models/person.model";
+import { TicketDoc } from "../models/ticket.model";
+import { TicketCategory, TicketPriority } from "../shared";
+
+/* --------------------------- DTOs (create/update) --------------------------- */
+export type TicketCreate = {
+  title: string;
+  phoneNumber?: string | null;
+  description?: string | null;
+  priority?: TicketPriority; // default: MEDIUM
+  category: TicketCategory;
+
+  transcription?: string | null;
+  audio?: AttachmentRef | null;
+
+  attachments?: AttachmentRef[];
+
+  assigneeId?: string | null;
+  assignee?: PersonRef | null;
+
+  reporterId?: string | null;
+  reporter?: PersonRef | null;
+
+  createdBy?: string;
+};
+
+export type TicketUpdate = Partial<
+  Omit<TicketDoc, "id" | "createdAt" | "updatedAt" | "_etag" | "_ts">
+>;
+
+/* ------------------------------ Factory helpers ----------------------------- */
+export function newTicket(payload: TicketCreate): TicketDoc {
+  const now = new Date().toISOString();
+  return {
+    id: uuid(),
+    title: payload.title,
+    phoneNumber: payload.phoneNumber ?? null,
+    description: payload.description ?? null,
+    status: "OPEN",
+    priority: payload.priority ?? "MEDIUM",
+    category: payload.category,
+    transcription: payload.transcription ?? null,
+    audio: payload.audio ?? null,
+    attachments: payload.attachments ?? [],
+
+    assigneeId: payload.assigneeId ?? null,
+    assignee: payload.assignee ?? null,
+    reporterId: payload.reporterId ?? null,
+    reporter: payload.reporter ?? null,
+
+    createdBy: payload.createdBy,
+    createdAt: now,
+    updatedAt: now,
+  };
+}
+
+export function applyTicketUpdate(
+  current: TicketDoc,
+  patch: TicketUpdate
+): TicketDoc {
+  const next: TicketDoc = {
+    ...current,
+    ...patch,
+    // enforce immutable / system fields
+    id: current.id,
+    createdAt: current.createdAt,
+    updatedAt: new Date().toISOString(),
+  };
+
+  // normalize nullables
+  if (patch.phoneNumber === undefined && current.phoneNumber === undefined)
+    next.phoneNumber = null as any;
+  if (patch.description === undefined && current.description === undefined)
+    next.description = null as any;
+  if (patch.transcription === undefined && current.transcription === undefined)
+    next.transcription = null as any;
+
+  return next;
+}
