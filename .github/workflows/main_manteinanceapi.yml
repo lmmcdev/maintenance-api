@@ -1,6 +1,8 @@
 # Docs for the Azure Web Apps Deploy action: https://github.com/azure/functions-action
 # More GitHub Actions for Azure: https://github.com/Azure/actions
 
+name: maintenance-api CI/CD
+
 on:
   push:
     branches: [main]
@@ -9,7 +11,7 @@ on:
 env:
   AZURE_FUNCTIONAPP_PACKAGE_PATH: '.' # path to your Function App (repo root)
   NODE_VERSION: '20' # Azure Functions v4 supports 18/20
-  APP_NAME: 'compliance-api'
+  APP_NAME: 'maintenance-api'
 
 jobs:
   build:
