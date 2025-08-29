@@ -18,7 +18,7 @@ export const AttachmentRefSchema = z.object({
   filename: z.string().min(1),
   mimetype: z.string().min(1),
   size: z.number().int().nonnegative().optional(),
-  url: z.string().url().optional(),
+  url: z.url().optional(),
 });
 export type AttachmentRef = z.infer<typeof AttachmentRefSchema>;
 
@@ -41,7 +41,7 @@ export const CreateTicketSchema = z.object({
     .regex(/^[+0-9()\-.\s]{7,20}$/, 'invalid phone number'),
   description: z.string().trim().min(1, 'description is required'),
 
-  category: TicketCategoryEnum,
+  category: TicketCategoryEnum.default('OTHER').optional(),
   priority: TicketPriorityEnum.default('MEDIUM').optional(),
   // Let server default status to OPEN if omitted
   status: TicketStatusEnum.default('OPEN').optional(),

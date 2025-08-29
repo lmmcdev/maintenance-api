@@ -43,12 +43,12 @@ export class TicketRepository {
       type: 'ticket',
       title: data.title.trim(),
       phoneNumber: data.phoneNumber.trim(),
-      description: data.description.trim(),
+      audio: data.audio,
+      description: data.description.trim(), // -> audio transcription
       status: data.status ?? 'OPEN',
       priority: data.priority ?? 'MEDIUM',
-      category: data.category,
-      transcription: data.transcription,
-      audio: data.audio,
+      category: data.category ?? 'OTHER',
+
       attachments: data.attachments ?? [],
       assignee: data.assignee,
       reporter: data.reporter,
