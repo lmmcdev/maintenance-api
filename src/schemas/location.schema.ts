@@ -4,6 +4,7 @@ import z from "zod";
 export const LocationSchema = z.object({
   id: z.uuid(),
   name: z.string().min(2).max(100),
+  phoneNumber: z.string().min(7).max(30).optional(),
   address: z.string().min(5).max(200),
   city: z.string().min(2).max(100),
   state: z.string().min(2).max(100),

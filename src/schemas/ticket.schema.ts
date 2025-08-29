@@ -1,8 +1,8 @@
-import z from "zod";
-import { TICKET_CATEGORY, TICKET_PRIORITY, TICKET_STATUS } from "../shared";
-import { AttachmentRefSchema } from "./attachment.schema";
-import { PersonRefSchema } from "./person.schema";
-import { LocationSchema } from "./location.schema";
+import z from 'zod';
+import { TICKET_CATEGORY, TICKET_PRIORITY, TICKET_STATUS } from '../shared';
+import { AttachmentRefSchema } from './attachment.schema';
+import { PersonRefSchema } from '../modules/person/person.dto';
+import { LocationSchema } from './location.schema';
 
 export const TicketCreateSchema = z.object({
   title: z.string().optional().nullable(),
@@ -33,4 +33,10 @@ export const TicketUpdateSchema = TicketCreateSchema.partial().extend({
   closedAt: z.iso.datetime().optional().nullable(),
   updatedBy: z.string().optional(),
   ttl: z.number().int().positive().optional(),
+});
+
+export const TicketListSchema = z.object({
+  q: z.string().min(2).max(100).optional(),
+  pageSize: z.number().min(1).max(100).default(10),
+  page: z.number().min(1).default(1),
 });

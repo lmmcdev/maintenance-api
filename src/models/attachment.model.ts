@@ -1,8 +1,8 @@
 export interface AttachmentRef {
-  id: string; // storage id (blob name, UUID, etc.)
+  id: string;
   filename: string;
-  contentType: string; // aka mimetype
+  contentType: string;
   size?: number;
-  url?: string; // pre-signed URL or CDN link (optional)
-  uploadedAt?: string; // ISO
+  url?: string;
+  uploadedAt?: string;
 }

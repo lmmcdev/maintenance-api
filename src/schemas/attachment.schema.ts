@@ -1,4 +1,4 @@
-import z from "zod";
+import z from 'zod';
 
 export const AttachmentRefSchema = z.object({
   id: z.string().min(1),

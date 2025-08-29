@@ -1,10 +1,9 @@
-import { v4 as uuid } from "uuid";
-import { TicketCategory, TicketPriority } from "../shared";
-import { AttachmentRef } from "../models/attachment.model";
-import { PersonRef } from "../models/person.model";
-import { TicketDoc } from "../models/ticket.model";
-import { LocationRef } from "../models/location.model";
-import { id } from "zod/v4/locales";
+import { v4 as uuid } from 'uuid';
+import { TicketCategory, TicketPriority } from '../shared';
+import { AttachmentRef } from '../models/attachment.model';
+import { PersonRef } from '../models/person.model';
+import { TicketDoc } from '../models/ticket.model';
+import { LocationRef } from '../models/location.model';
 
 export type TicketCreate = {
   title?: string | null;
@@ -30,22 +29,22 @@ export type TicketCreate = {
 };
 
 export type TicketUpdate = Partial<
-  Omit<TicketDoc, "id" | "createdAt" | "updatedAt" | "_etag" | "_ts">
+  Omit<TicketDoc, 'id' | 'createdAt' | 'updatedAt' | '_etag' | '_ts'>
 >;
 
 export function newTicket(payload: TicketCreate): TicketDoc {
   const now = new Date().toISOString();
   return {
     id: uuid(),
-    title: `Maintenance Ticket: ${payload.title ?? "Untitled"}`,
+    title: `Maintenance Ticket: ${payload.title ?? 'Untitled'}`,
     phoneNumber: payload.phoneNumber,
     description: payload.description,
 
     audio: payload.audio,
 
-    status: "OPEN",
-    priority: payload.priority ?? "MEDIUM",
-    category: payload.category ?? "OTHER",
+    status: 'OPEN',
+    priority: payload.priority ?? 'MEDIUM',
+    category: payload.category ?? 'OTHER',
 
     attachments: payload.attachments ?? [],
 
@@ -63,10 +62,7 @@ export function newTicket(payload: TicketCreate): TicketDoc {
   };
 }
 
-export function applyTicketUpdate(
-  current: TicketDoc,
-  patch: TicketUpdate
-): TicketDoc {
+export function applyTicketUpdate(current: TicketDoc, patch: TicketUpdate): TicketDoc {
   const next: TicketDoc = {
     ...current,
     ...patch,
