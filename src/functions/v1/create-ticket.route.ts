@@ -6,17 +6,21 @@ import {
 } from "@azure/functions";
 
 import { ok, withHttp } from "../../shared";
+import { TicketService } from "../../services/ticket.service";
+import { TicketCreateSchema } from "../../schemas/ticket.schema";
+import { parse } from "path";
+import { parseJson } from "../../shared/request";
 
 export const createTicketHandler = withHttp(
   async (
     req: HttpRequest,
     ctx: InvocationContext
   ): Promise<HttpResponseInit> => {
-    const ticketData = req.body;
+    const body = await parseJson(req, TicketCreateSchema);
 
-    // Here you would typically call a service to create the ticket
-    // For this example, we'll just return the received data
-    return ok(ctx, ticketData);
+    const ticketService = await TicketService.createInstance();
+    const ticket = await ticketService.createTicket(body);
+    return ok(ctx, ticket);
   }
 );
 

@@ -4,16 +4,16 @@ import { AttachmentRef } from "../models/attachment.model";
 import { PersonRef } from "../models/person.model";
 import { TicketDoc } from "../models/ticket.model";
 import { LocationRef } from "../models/location.model";
+import { id } from "zod/v4/locales";
 
 export type TicketCreate = {
-  title: string;
-  phoneNumber?: string | null;
-  description?: string | null;
-  priority?: TicketPriority;
-  category: TicketCategory;
+  title?: string | null;
+  phoneNumber: string;
+  description: string; // -> audio transcription
+  audio: AttachmentRef;
 
-  transcription?: string | null;
-  audio?: AttachmentRef | null;
+  priority?: TicketPriority;
+  category?: TicketCategory;
 
   attachments?: AttachmentRef[];
 
@@ -37,14 +37,16 @@ export function newTicket(payload: TicketCreate): TicketDoc {
   const now = new Date().toISOString();
   return {
     id: uuid(),
-    title: payload.title,
-    phoneNumber: payload.phoneNumber ?? null,
-    description: payload.description ?? null,
+    title: `Maintenance Ticket: ${payload.title ?? "Untitled"}`,
+    phoneNumber: payload.phoneNumber,
+    description: payload.description,
+
+    audio: payload.audio,
+
     status: "OPEN",
     priority: payload.priority ?? "MEDIUM",
-    category: payload.category,
-    transcription: payload.transcription ?? null,
-    audio: payload.audio ?? null,
+    category: payload.category ?? "OTHER",
+
     attachments: payload.attachments ?? [],
 
     locationId: payload.locationId ?? null,

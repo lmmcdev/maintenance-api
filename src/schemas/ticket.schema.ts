@@ -5,15 +5,14 @@ import { PersonRefSchema } from "./person.schema";
 import { LocationSchema } from "./location.schema";
 
 export const TicketCreateSchema = z.object({
-  title: z.string().min(1),
-  phoneNumber: z.string().trim().min(7).max(30).optional().nullable(),
-  description: z.string().optional().nullable(),
+  title: z.string().optional().nullable(),
+  phoneNumber: z.string().trim().min(7).max(30),
+  description: z.string().min(1).max(1000),
+  audio: AttachmentRefSchema,
 
-  priority: z.enum(TICKET_PRIORITY).default("MEDIUM"),
-  category: z.enum(TICKET_CATEGORY),
+  priority: z.enum(TICKET_PRIORITY).optional(),
+  category: z.enum(TICKET_CATEGORY).optional(),
 
-  transcription: z.string().optional().nullable(),
-  audio: AttachmentRefSchema.optional().nullable(),
   attachments: z.array(AttachmentRefSchema).optional(),
 
   locationId: z.uuid().optional().nullable(),

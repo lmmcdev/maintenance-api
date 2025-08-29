@@ -4,3 +4,4 @@ export * from "./respond";
 export * from "./status-code";
 export * from "./with-http";
 export * from "./types";
+export * from "./params-validator";
