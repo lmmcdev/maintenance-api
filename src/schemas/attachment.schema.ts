@@ -1,6 +1,5 @@
 import z from "zod";
 
-/* ------------------------------- Zod Schemas -------------------------------- */
 export const AttachmentRefSchema = z.object({
   id: z.string().min(1),
   filename: z.string().min(1),
@@ -9,3 +8,4 @@ export const AttachmentRefSchema = z.object({
   url: z.url().optional(),
   uploadedAt: z.iso.datetime().optional(),
 });
+export type AttachmentRef = z.infer<typeof AttachmentRefSchema>;

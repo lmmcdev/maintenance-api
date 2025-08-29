@@ -7,3 +7,5 @@ export const PersonRefSchema = z.object({
   email: z.email(),
   role: z.enum(["admin", "user"]),
 });
+
+export type PersonRef = z.infer<typeof PersonRefSchema>;

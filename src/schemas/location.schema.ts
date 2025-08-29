@@ -1,19 +1,5 @@
 // src/schemas/location.schema.ts
-
 import z from "zod";
-
-/* ------------------------------- Zod Schemas -------------------------------- */
-/**
- * export interface LocationRef {
-  id: string;
-  name: string;
-  address: string;
-  city: string;
-  state: string;
-  zip: string;
-  country: string;
-
- */
 
 export const LocationSchema = z.object({
   id: z.uuid(),

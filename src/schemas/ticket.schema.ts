@@ -2,6 +2,7 @@ import z from "zod";
 import { TICKET_CATEGORY, TICKET_PRIORITY, TICKET_STATUS } from "../shared";
 import { AttachmentRefSchema } from "./attachment.schema";
 import { PersonRefSchema } from "./person.schema";
+import { LocationSchema } from "./location.schema";
 
 export const TicketCreateSchema = z.object({
   title: z.string().min(1),
@@ -14,6 +15,9 @@ export const TicketCreateSchema = z.object({
   transcription: z.string().optional().nullable(),
   audio: AttachmentRefSchema.optional().nullable(),
   attachments: z.array(AttachmentRefSchema).optional(),
+
+  locationId: z.uuid().optional().nullable(),
+  location: LocationSchema.optional().nullable(),
 
   assigneeId: z.uuid().optional().nullable(),
   assignee: PersonRefSchema.optional().nullable(),
