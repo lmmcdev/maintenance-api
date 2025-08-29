@@ -2,7 +2,7 @@
   "name": "maintenance-api",
   "version": "1.0.0",
   "description": "A maintenance API for managing tickets",
-  "main": "dist/index.js",
+  "main": "dist/functions/index.js",
   "scripts": {
     "build": "tsc",
     "watch": "tsc -w",

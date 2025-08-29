@@ -5,7 +5,7 @@ import {
   InvocationContext,
 } from "@azure/functions";
 
-import { ok, withHttp } from "../shared";
+import { ok, withHttp } from "../../shared";
 
 export const healthHandler = withHttp(
   async (
@@ -16,8 +16,6 @@ export const healthHandler = withHttp(
     const upSecs = Math.floor(process.uptime());
     const upSince = new Date(now.getTime() - upSecs * 1000);
 
-    ctx.log(`Health check: ${upSecs} seconds up`);
-
     const data = {
       upSeconds: upSecs,
       upSince: upSince.toISOString(),
@@ -26,7 +24,7 @@ export const healthHandler = withHttp(
   }
 );
 
-app.http("health", {
+app.http("app-health", {
   methods: ["GET"],
   authLevel: "anonymous",
   route: "v1/health",
