@@ -6,6 +6,7 @@ import { withHttp, ok, parseJson } from '../../../shared';
 import { PersonUpdateDto } from '../dtos/person-update.dto';
 import { PersonService } from '../person.service';
 import { PersonRepository } from '../person.repository';
+import { PersonRoutes } from '.';
 
 const ParamsSchema = z.object({ id: z.uuid() });
 
@@ -17,17 +18,14 @@ const updatePersonHandler = withHttp(
     const service = new PersonService(new PersonRepository());
     await service.init();
 
-    // Nota: si quieres validar unicidad de email aquí, puedes hacerlo antes del update.
-    // El repositorio base ya actualiza updatedAt vía patch.
-
     const updated = await service.updatePerson(id, patch);
     return ok(ctx, updated);
   },
 );
 
-app.http('update-person', {
+app.http('persons-update', {
   methods: ['PATCH'],
   authLevel: 'anonymous',
-  route: 'v1/persons/{id}', // URL final: /api/v1/persons/{id}
+  route: PersonRoutes.update,
   handler: updatePersonHandler,
 });
