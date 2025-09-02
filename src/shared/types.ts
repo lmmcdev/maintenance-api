@@ -1,5 +1,5 @@
 /* -------------------------- Enumerations (reusable) ------------------------- */
-export const TICKET_STATUS = [
+/* export const TICKET_STATUS = [
   "OPEN",
   "IN_PROGRESS",
   "RESOLVED",
@@ -15,4 +15,25 @@ export const TICKET_CATEGORY = [
 
 export type TicketStatus = (typeof TICKET_STATUS)[number];
 export type TicketPriority = (typeof TICKET_PRIORITY)[number];
-export type TicketCategory = (typeof TICKET_CATEGORY)[number];
+export type TicketCategory = (typeof TICKET_CATEGORY)[number]; */
+
+export enum TicketStatus {
+  OPEN = 'OPEN',
+  IN_PROGRESS = 'IN_PROGRESS',
+  RESOLVED = 'RESOLVED',
+  CLOSED = 'CLOSED',
+}
+
+export enum TicketPriority {
+  LOW = 'LOW',
+  MEDIUM = 'MEDIUM',
+  HIGH = 'HIGH',
+  URGENT = 'URGENT',
+}
+
+export enum TicketCategory {
+  PREVENTIVE = 'PREVENTIVE',
+  CORRECTIVE = 'CORRECTIVE',
+  EMERGENCY = 'EMERGENCY',
+  GENERAL = 'GENERAL',
+}

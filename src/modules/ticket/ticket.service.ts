@@ -1,63 +1,48 @@
-import type { ListResult } from './ticket.repository';
-import { TicketRepository, type TicketDoc } from './ticket.repository';
-import {
-  type CreateTicketDto,
-  type UpdateTicketDto,
-  type ListTicketsQuery,
-  type TicketStatus,
-  toTicketRef,
-  type TicketRef,
-} from './ticket.dto';
-
-export class NotFoundError extends Error {
-  code = 'NOT_FOUND' as const;
-  constructor(message: string) {
-    super(message);
-    this.name = 'NotFoundError';
-  }
-}
+import { NotFoundError } from '../../shared';
+import { TicketModel } from './ticket.model';
+import { TicketRepository } from './ticket.repository';
 
 export class TicketService {
-  constructor(private readonly repo: TicketRepository) {}
+  private ticketRepository: TicketRepository;
 
-  async create(dto: CreateTicketDto): Promise<TicketDoc> {
-    return this.repo.create(dto);
+  constructor(ticketRepository: TicketRepository) {
+    this.ticketRepository = ticketRepository;
   }
 
-  async get(id: string): Promise<TicketDoc> {
-    const doc = await this.repo.get(id);
-    if (!doc) throw new NotFoundError(`Ticket with id ${id} not found`);
-    return doc;
+  // Service methods would go here
+  async init() {
+    await this.ticketRepository.init();
+    return this;
   }
 
-  async maybeGet(id: string): Promise<TicketDoc | null> {
-    return this.repo.get(id);
+  async createTicket(
+    data: Omit<TicketModel, 'id' | 'createdAt' | 'updatedAt'>,
+  ): Promise<TicketModel> {
+    return this.ticketRepository.create(data);
   }
 
-  async update(id: string, dto: UpdateTicketDto): Promise<TicketDoc> {
-    const updated = await this.repo.update(id, dto);
-    if (!updated) throw new NotFoundError(`Ticket with id ${id} not found`);
-    return updated;
+  async getTicket(id: string): Promise<TicketModel> {
+    try {
+      const ticket = await this.ticketRepository.get(id);
+      if (!ticket) {
+        throw new NotFoundError(`Ticket with ID ${id} not found`);
+      }
+      return ticket;
+    } catch (error) {
+      console.error('Error fetching ticket:', error);
+      throw error;
+    }
   }
 
-  async delete(id: string): Promise<boolean> {
-    const exists = await this.repo.get(id);
-    if (!exists) throw new NotFoundError(`Ticket with id ${id} not found`);
-    return this.repo.delete(id);
+  async updateTicket(id: string, patch: Partial<TicketModel>): Promise<TicketModel> {
+    return this.ticketRepository.update(id, patch);
   }
 
-  async list(query: ListTicketsQuery): Promise<ListResult<TicketDoc>> {
-    return this.repo.list(query);
+  async deleteTicket(id: string): Promise<boolean> {
+    return this.ticketRepository.delete(id);
   }
 
-  async setStatus(id: string, status: TicketStatus): Promise<TicketDoc> {
-    // optional: ensure exists for clearer error
-    const exists = await this.repo.get(id);
-    if (!exists) throw new NotFoundError(`Ticket with id ${id} not found`);
-    return this.repo.setStatus(id, status);
-  }
-
-  toRef(ticket: TicketDoc): TicketRef {
-    return toTicketRef(ticket);
+  async listTickets(sql: any): Promise<{ items: TicketModel[]; continuationToken?: string }> {
+    return this.ticketRepository.list(sql);
   }
 }
