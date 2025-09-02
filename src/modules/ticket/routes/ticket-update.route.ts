@@ -31,7 +31,7 @@ const updateTicketHandler = withHttp(
     if (patch.status === TicketStatus.DONE) {
       if (patch.resolvedAt === undefined || patch.resolvedAt === null) computed.resolvedAt = now;
       if (patch.resolvedAt === undefined) computed.resolvedAt = patch.resolvedAt ?? now;
-    } else if (patch.status === TicketStatus.OPEN || patch.status === TicketStatus.IN_PROGRESS) {
+    } else if (patch.status === TicketStatus.NEW || patch.status === TicketStatus.IN_PROGRESS) {
       if (patch.resolvedAt === undefined) computed.resolvedAt = null;
     }
 

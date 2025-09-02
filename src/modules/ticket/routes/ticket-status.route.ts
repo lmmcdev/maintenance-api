@@ -22,11 +22,13 @@ const updateTicketStatusHandler = withHttp(
     const now = new Date().toISOString();
     const patch: Partial<TicketModel> = { status, updatedAt: now };
 
-    // Reglas de timestamps derivadas del estado
+    // reglas de timestamps para 3 estados:
     if (status === TicketStatus.DONE) {
-      patch.resolvedAt = now; // marcar done
-    } else if (status === TicketStatus.OPEN || status === TicketStatus.IN_PROGRESS) {
-      // re-abrir: limpiar marcas de done
+      // cerrar: marca closedAt (y opcionalmente resolvedAt para compatibilidad)
+
+      patch.resolvedAt = patch.resolvedAt ?? now;
+    } else if (status === TicketStatus.NEW || status === TicketStatus.IN_PROGRESS) {
+      // reabrir o en curso: limpia marcas
       patch.resolvedAt = null;
     }
 
