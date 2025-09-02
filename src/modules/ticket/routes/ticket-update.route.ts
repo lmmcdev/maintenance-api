@@ -80,7 +80,7 @@ const updateTicketHandler = withHttp(
   },
 );
 
-app.http('update-ticket', {
+app.http('tickets-update', {
   methods: ['PATCH'],
   authLevel: 'anonymous',
   route: TicketRoutes.update,

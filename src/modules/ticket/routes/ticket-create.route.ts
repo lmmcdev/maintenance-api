@@ -20,7 +20,7 @@ const createTicketHandler = withHttp(
   },
 );
 
-app.http('create-ticket', {
+app.http('tickets-create', {
   methods: ['POST'],
   authLevel: 'anonymous',
   route: TicketRoutes.create,
