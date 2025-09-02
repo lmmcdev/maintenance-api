@@ -2,8 +2,10 @@
 import { z } from 'zod';
 import { TicketStatus } from '../../../shared';
 
-export const UpdateStatusDto = z.object({
-  status: z.enum(TicketStatus),
-});
+export const UpdateStatusDto = z
+  .object({
+    status: z.enum(TicketStatus),
+  })
+  .strict();
 
 export type UpdateStatusDto = z.infer<typeof UpdateStatusDto>;

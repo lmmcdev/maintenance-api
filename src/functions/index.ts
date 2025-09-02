@@ -15,3 +15,14 @@ import '../modules/person/routes/person-update.route';
 import '../modules/person/routes/person-list.route';
 import '../modules/person/routes/person-get.route';
 import '../modules/person/routes/person-delete.route';
+
+// categories route
+import '../modules/category/routes/category-create.route';
+import '../modules/category/routes/category-update.route';
+import '../modules/category/routes/category-list.route';
+import '../modules/category/routes/category-get.route';
+import '../modules/category/routes/category-delete.route';
+import '../modules/category/routes/subcategory-add.route';
+import '../modules/category/routes/subcategory-update.route';
+import '../modules/category/routes/subcategory-delete.route';
+import '../modules/category/routes/category-seed.route';
