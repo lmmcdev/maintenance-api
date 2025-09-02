@@ -4,6 +4,7 @@ import type { BaseDocument } from '../../infra/cosmos.repository';
 export interface PersonModel extends BaseDocument {
   firstName: string;
   lastName: string;
+  phoneNumber?: string;
   email?: string;
   role?: 'admin' | 'user';
 }

@@ -8,17 +8,16 @@ import { PersonRoutes } from './index';
 
 const createPersonHandler = withHttp(
   async (req: HttpRequest, ctx: InvocationContext): Promise<HttpResponseInit> => {
-    const dto = await parseJson(req, PersonCreateDto);
-
-    const service = new PersonService(new PersonRepository());
-    await service.init();
-
     try {
+      const dto = await parseJson(req, PersonCreateDto);
+
+      const service = new PersonService(new PersonRepository());
+      await service.init();
       const person = await service.createPerson(dto);
       ctx.info('Person created with ID:', person.id);
       return created(ctx, person);
     } catch (err: any) {
-      // Conflicto por email duplicado
+      ctx.error('Error creating person:', err);
       if (err?.code === 409) {
         return {
           status: 409,

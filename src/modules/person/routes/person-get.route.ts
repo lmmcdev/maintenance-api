@@ -32,7 +32,7 @@ const getPersonHandler = withHttp(
   },
 );
 
-app.http('get-person', {
+app.http('persons-get-byId', {
   methods: ['GET'],
   authLevel: 'anonymous',
   route: PersonRoutes.get, // URL final: /api/v1/persons/{id}

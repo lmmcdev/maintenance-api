@@ -34,7 +34,7 @@ const deletePersonHandler = withHttp(
   },
 );
 
-app.http('delete-person', {
+app.http('persons-delete-byId', {
   methods: ['DELETE'],
   authLevel: 'anonymous',
   route: PersonRoutes.delete, // p.ej. "v1/persons/{id}"

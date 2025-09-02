@@ -1,14 +1,7 @@
 import { z } from 'zod';
 import { AttachmentRefSchema } from '../../attachment/attachment.dto';
-import { PersonRefSchema } from '../../person/dtos/person.dto';
-import { TicketStatus, TicketPriority, TicketCategory } from '../../../shared';
-
-const PhoneSchema = z
-  .string()
-  .trim()
-  .min(7)
-  .max(30)
-  .regex(/^\+?[0-9\s\-().]+$/, 'Teléfono inválido');
+import { PersonCreateDto } from '../../person/dtos/person-create.dto';
+import { TicketStatus, TicketPriority, TicketCategory, PhoneSchema } from '../../../shared';
 
 export const CreateTicketDto = z
   .object({
@@ -24,7 +17,7 @@ export const CreateTicketDto = z
     attachments: z.array(AttachmentRefSchema).optional().default([]),
 
     assigneeId: z.uuid().optional().nullable(),
-    assignee: PersonRefSchema.optional().nullable(),
+    assignee: PersonCreateDto.optional().nullable(),
   })
   .strict()
   .superRefine((v, ctx) => {

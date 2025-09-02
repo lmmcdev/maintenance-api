@@ -6,6 +6,7 @@ import { withHttp, ok, parseJson } from '../../../shared';
 import { PersonUpdateDto } from '../dtos/person-update.dto';
 import { PersonService } from '../person.service';
 import { PersonRepository } from '../person.repository';
+import { PersonRoutes } from '.';
 
 const ParamsSchema = z.object({ id: z.string().uuid() });
 
@@ -44,9 +45,9 @@ const updatePersonHandler = withHttp(
   },
 );
 
-app.http('update-person', {
+app.http('update-person-byId', {
   methods: ['PATCH'],
   authLevel: 'anonymous',
-  route: 'v1/persons/{id}', // URL final: /api/v1/persons/{id}
+  route: PersonRoutes.update, // URL final: /api/v1/persons/{id}
   handler: updatePersonHandler,
 });

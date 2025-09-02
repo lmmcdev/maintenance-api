@@ -1,6 +1,7 @@
 // src/modules/person/dtos/person-update.dto.ts
 import { z } from 'zod';
 import { PersonRoleSchema } from './person-create.dto'; // reutilizamos el enum
+import { PhoneSchema } from '../../../shared';
 
 const NameSchema = z
   .string()
@@ -13,6 +14,7 @@ export const PersonUpdateDto = z
   .object({
     firstName: NameSchema.optional(),
     lastName: NameSchema.optional(),
+    phoneNumber: PhoneSchema.optional(),
     email: z
       .email('Email inválido')
       .trim()
@@ -22,7 +24,6 @@ export const PersonUpdateDto = z
     role: PersonRoleSchema.optional(),
   })
   .strict()
-  // Requiere al menos un campo a actualizar
   .refine((v) => Object.values(v).some((x) => x !== undefined), {
     message: 'Debes enviar al menos un campo para actualizar',
   });

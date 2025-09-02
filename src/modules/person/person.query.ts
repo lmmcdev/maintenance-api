@@ -17,6 +17,11 @@ export function buildListPersonsSql(q: PersonListQueryDto): SqlQuerySpec {
     push('@q', q.q);
   }
 
+  if (q.phoneNumber) {
+    clauses.push('c.phoneNumber = @phoneNumber');
+    push('@phoneNumber', q.phoneNumber);
+  }
+
   if (q.role) {
     clauses.push('c.role = @role');
     push('@role', q.role);

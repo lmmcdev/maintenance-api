@@ -17,6 +17,8 @@ export type TicketStatus = (typeof TICKET_STATUS)[number];
 export type TicketPriority = (typeof TICKET_PRIORITY)[number];
 export type TicketCategory = (typeof TICKET_CATEGORY)[number]; */
 
+import z from 'zod';
+
 export enum TicketStatus {
   OPEN = 'OPEN',
   IN_PROGRESS = 'IN_PROGRESS',
@@ -37,3 +39,10 @@ export enum TicketCategory {
   EMERGENCY = 'EMERGENCY',
   GENERAL = 'GENERAL',
 }
+
+export const PhoneSchema = z
+  .string()
+  .trim()
+  .min(7)
+  .max(30)
+  .regex(/^\+?[0-9\s\-().]+$/, 'Teléfono inválido');
