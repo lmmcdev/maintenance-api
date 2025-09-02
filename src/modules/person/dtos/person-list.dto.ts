@@ -17,7 +17,7 @@ export const DateDDMMYYYY = z
 export const PersonListQueryDto = z
   .object({
     // Filtros
-    q: z.string().trim().optional(), // busca en firstName/lastName/email
+    q: z.string().trim().optional(),
     role: PersonRoleSchema.optional(),
     email: z.email().trim().toLowerCase().optional(),
     phoneNumber: PhoneSchema.optional(),

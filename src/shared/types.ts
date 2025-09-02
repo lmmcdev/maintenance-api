@@ -20,10 +20,9 @@ export type TicketCategory = (typeof TICKET_CATEGORY)[number]; */
 import z from 'zod';
 
 export enum TicketStatus {
-  OPEN = 'OPEN',
+  OPEN = 'NEW',
   IN_PROGRESS = 'IN_PROGRESS',
-  RESOLVED = 'RESOLVED',
-  CLOSED = 'CLOSED',
+  DONE = 'DONE',
 }
 
 export enum TicketPriority {
