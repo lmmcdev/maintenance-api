@@ -10,3 +10,4 @@ import '../modules/ticket/routes/ticket-status.route';
 import '../modules/ticket/routes/ticket-delete.route';
 
 // persons - route
+import '../modules/person/routes/person-create.route';

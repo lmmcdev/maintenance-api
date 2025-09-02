@@ -18,11 +18,11 @@ const updateTicketHandler = withHttp(
     const { id } = ParamsSchema.parse(req.params);
     const patch = await parseJson(req, UpdateTicketDto);
 
-    const service = new TicketService(new TicketRepository());
-    await service.init();
+    const ticketService = new TicketService(new TicketRepository());
+    await ticketService.init();
 
-    const personSvc = new PersonService(new PersonRepository());
-    await personSvc.init();
+    const personService = new PersonService(new PersonRepository());
+    await personService.init();
 
     const now = new Date().toISOString();
     const computed: Partial<TicketModel> = { updatedAt: now };
@@ -54,7 +54,7 @@ const updateTicketHandler = withHttp(
       if (patch.assigneeId === null) {
         assigneePatch = { assigneeId: null, assignee: null };
       } else if (patch.assigneeId) {
-        const person = await personSvc.getPerson(patch.assigneeId);
+        const person = await personService.getPerson(patch.assigneeId);
         if (!person) {
           return {
             status: 400,
@@ -75,7 +75,7 @@ const updateTicketHandler = withHttp(
       ...assigneePatch,
     };
 
-    const updated = await service.updateTicket(id, payload);
+    const updated = await ticketService.updateTicket(id, payload);
     return ok(ctx, updated);
   },
 );
