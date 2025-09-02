@@ -33,7 +33,7 @@ const deleteTicketHandler = withHttp(
   },
 );
 
-app.http('delete-ticket', {
+app.http('tickets-delete', {
   methods: ['DELETE'],
   authLevel: 'anonymous',
   route: TicketRoutes.delete, // "v1/tickets/{id}" (con /api implícito)

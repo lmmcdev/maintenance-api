@@ -15,7 +15,7 @@ const getTicketByIdHandler = withHttp(
   },
 );
 
-app.http('get-ticket-by-id', {
+app.http('tickets-get', {
   methods: ['GET'],
   authLevel: 'anonymous',
   route: TicketRoutes.get,

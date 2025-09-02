@@ -1,4 +1,4 @@
-// src/infra/ticket.repository.ts
+// src/modules/ticket/ticket.repository.ts
 import { CosmosRepository } from '../../infra/cosmos.repository';
 import { TicketModel } from './ticket.model';
 
@@ -6,6 +6,7 @@ export class TicketRepository extends CosmosRepository<TicketModel> {
   constructor() {
     super('tickets', '/id');
   }
+
   async create(
     doc: Omit<TicketModel, 'id' | 'createdAt' | 'updatedAt'> & Partial<Pick<TicketModel, 'id'>>,
   ): Promise<TicketModel> {

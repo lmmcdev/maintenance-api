@@ -1,12 +1,15 @@
-// src/modules/ticket/ticket.update.http.ts
+// src/modules/ticket/routes/ticket-update.route.ts
 import { app, HttpRequest, HttpResponseInit, InvocationContext } from '@azure/functions';
-import { withHttp, ok, parseJson, TicketStatus } from '../../../shared'; // asumiendo ok() arma {status:200, jsonBody:...}
+import { withHttp, ok, parseJson, TicketStatus } from '../../../shared';
 import { z } from 'zod';
 import { UpdateTicketDto } from '../dtos/ticket-update.dto';
 import { TicketService } from '../ticket.service';
 import { TicketRepository } from '../ticket.repository';
 import { TicketModel } from '../ticket.model';
 import { TicketRoutes } from './index';
+
+import { PersonService } from '../../person/person.service';
+import { PersonRepository } from '../../person/person.repository';
 
 const ParamsSchema = z.object({ id: z.uuid() });
 
@@ -18,31 +21,24 @@ const updateTicketHandler = withHttp(
     const service = new TicketService(new TicketRepository());
     await service.init();
 
-    // Reglas de negocio: timestamps segun status
+    const personSvc = new PersonService(new PersonRepository());
+    await personSvc.init();
+
     const now = new Date().toISOString();
     const computed: Partial<TicketModel> = { updatedAt: now };
 
+    // --- reglas de estado → timestamps ---
     if (patch.status === TicketStatus.RESOLVED) {
-      // si no viene, setéalo
-      if (patch.resolvedAt === undefined || patch.resolvedAt === null) {
-        computed.resolvedAt = now;
-      }
-      // si re-resuelven, no cierres automáticamente (depende de tu negocio)
+      if (patch.resolvedAt === undefined || patch.resolvedAt === null) computed.resolvedAt = now;
     } else if (patch.status === TicketStatus.CLOSED) {
-      if (patch.closedAt === undefined || patch.closedAt === null) {
-        computed.closedAt = now;
-      }
-      // si quieres, asegúrate de que haya resolvedAt:
-      if (patch.resolvedAt === undefined) {
-        computed.resolvedAt = patch.resolvedAt ?? now; // o deja undefined si no quieres forzarlo
-      }
+      if (patch.closedAt === undefined || patch.closedAt === null) computed.closedAt = now;
+      if (patch.resolvedAt === undefined) computed.resolvedAt = patch.resolvedAt ?? now;
     } else if (patch.status === TicketStatus.OPEN || patch.status === TicketStatus.IN_PROGRESS) {
-      // re-abrir: limpia resolvedAt/closedAt si no fueron explícitos
       if (patch.resolvedAt === undefined) computed.resolvedAt = null;
       if (patch.closedAt === undefined) computed.closedAt = null;
     }
 
-    // Deduplicado de attachments (si viene)
+    // --- dedupe attachments si vienen ---
     if (patch.attachments) {
       const seen = new Set<string>();
       computed.attachments = patch.attachments.filter((a) => {
@@ -52,12 +48,39 @@ const updateTicketHandler = withHttp(
       });
     }
 
-    const updated = await service.updateTicket(id, { ...patch, ...computed });
+    // --- resolver assigneeId → PersonModel (y sincronizar ambos campos del modelo) ---
+    let assigneePatch: Partial<Pick<TicketModel, 'assigneeId' | 'assignee'>> = {};
+    if ('assigneeId' in patch) {
+      if (patch.assigneeId === null) {
+        assigneePatch = { assigneeId: null, assignee: null };
+      } else if (patch.assigneeId) {
+        const person = await personSvc.getPerson(patch.assigneeId);
+        if (!person) {
+          return {
+            status: 400,
+            jsonBody: {
+              success: false,
+              error: { code: 'INVALID_ASSIGNEE', message: `Person ${patch.assigneeId} not found` },
+              meta: { traceId: ctx.invocationId },
+            },
+          };
+        }
+        assigneePatch = { assigneeId: person.id, assignee: person };
+      }
+    }
+
+    const payload: Partial<TicketModel> = {
+      ...patch,
+      ...computed,
+      ...assigneePatch,
+    };
+
+    const updated = await service.updateTicket(id, payload);
     return ok(ctx, updated);
   },
 );
 
-app.http('update-ticket', {
+app.http('tickets-update', {
   methods: ['PATCH'],
   authLevel: 'anonymous',
   route: TicketRoutes.update,

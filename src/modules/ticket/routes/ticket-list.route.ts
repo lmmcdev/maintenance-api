@@ -36,7 +36,7 @@ const listTicketsHandler = withHttp(
   },
 );
 
-app.http('list-tickets', {
+app.http('tickets-list', {
   methods: ['GET'],
   authLevel: 'anonymous',
   route: TicketRoutes.list,

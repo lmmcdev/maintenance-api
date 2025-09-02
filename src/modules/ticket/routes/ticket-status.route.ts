@@ -41,7 +41,7 @@ const updateTicketStatusHandler = withHttp(
   },
 );
 
-app.http('update-ticket-status', {
+app.http('tickets-status', {
   methods: ['PATCH'],
   authLevel: 'anonymous',
   route: TicketRoutes.status,
