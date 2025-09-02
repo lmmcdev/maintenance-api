@@ -3,6 +3,7 @@ import { app, HttpRequest, HttpResponseInit, InvocationContext } from '@azure/fu
 import { TicketService } from '../ticket.service';
 import { TicketRepository } from '../ticket.repository';
 import { withHttp, idParamSchema, ok } from '../../../shared';
+import { TicketRoutes } from './index';
 
 const getTicketByIdHandler = withHttp(
   async (req: HttpRequest, ctx: InvocationContext): Promise<HttpResponseInit> => {
@@ -17,6 +18,6 @@ const getTicketByIdHandler = withHttp(
 app.http('get-ticket-by-id', {
   methods: ['GET'],
   authLevel: 'anonymous',
-  route: 'v1/tickets/{id}',
+  route: TicketRoutes.get,
   handler: getTicketByIdHandler,
 });

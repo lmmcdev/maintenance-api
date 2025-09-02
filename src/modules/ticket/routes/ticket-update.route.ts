@@ -2,10 +2,11 @@
 import { app, HttpRequest, HttpResponseInit, InvocationContext } from '@azure/functions';
 import { withHttp, ok, parseJson, TicketStatus } from '../../../shared'; // asumiendo ok() arma {status:200, jsonBody:...}
 import { z } from 'zod';
-import { UpdateTicketDto } from '../dtos/ticket.update.dto';
+import { UpdateTicketDto } from '../dtos/ticket-update.dto';
 import { TicketService } from '../ticket.service';
 import { TicketRepository } from '../ticket.repository';
 import { TicketModel } from '../ticket.model';
+import { TicketRoutes } from './index';
 
 const ParamsSchema = z.object({ id: z.uuid() });
 
@@ -59,6 +60,6 @@ const updateTicketHandler = withHttp(
 app.http('update-ticket', {
   methods: ['PATCH'],
   authLevel: 'anonymous',
-  route: 'v1/tickets/{id}',
+  route: TicketRoutes.update,
   handler: updateTicketHandler,
 });

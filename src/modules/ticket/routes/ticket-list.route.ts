@@ -1,10 +1,11 @@
 // src/modules/ticket/ticket.list.http.ts
 import { app, HttpRequest, HttpResponseInit, InvocationContext } from '@azure/functions';
 import { withHttp, ok, parseQuery } from '../../../shared';
-import { ListTicketsQueryDto } from '../dtos/ticket.list.dto';
+import { ListTicketsQueryDto } from '../dtos/ticket-list.dto';
 import { buildListTicketsSql } from '../ticket.query';
 import { TicketService } from '../ticket.service';
 import { TicketRepository } from '../ticket.repository';
+import { TicketRoutes } from './index';
 
 const listTicketsHandler = withHttp(
   async (req: HttpRequest, ctx: InvocationContext): Promise<HttpResponseInit> => {
@@ -38,6 +39,6 @@ const listTicketsHandler = withHttp(
 app.http('list-tickets', {
   methods: ['GET'],
   authLevel: 'anonymous',
-  route: 'v1/tickets',
+  route: TicketRoutes.list,
   handler: listTicketsHandler,
 });

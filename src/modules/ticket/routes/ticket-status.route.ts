@@ -3,10 +3,11 @@ import { z } from 'zod';
 import { app, HttpRequest, HttpResponseInit, InvocationContext } from '@azure/functions';
 import { withHttp, ok, parseJson, TicketStatus } from '../../../shared';
 
-import { UpdateStatusDto } from '../dtos/ticket.status.dto';
+import { UpdateStatusDto } from '../dtos/ticket-status.dto';
 import { TicketService } from '../ticket.service';
 import { TicketRepository } from '../ticket.repository';
 import { TicketModel } from '../ticket.model';
+import { TicketRoutes } from './index';
 
 const ParamsSchema = z.object({ id: z.string().uuid() });
 
@@ -43,6 +44,6 @@ const updateTicketStatusHandler = withHttp(
 app.http('update-ticket-status', {
   methods: ['PATCH'],
   authLevel: 'anonymous',
-  route: 'v1/tickets/{id}/status',
+  route: TicketRoutes.status,
   handler: updateTicketStatusHandler,
 });

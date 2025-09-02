@@ -1,5 +1,5 @@
 // src/modules/ticket/ticket.query.ts
-import { ListTicketsQueryDto } from './dtos/ticket.list.dto';
+import { ListTicketsQueryDto } from './dtos/ticket-list.dto';
 
 type CosmosSql = {
   query: string;
