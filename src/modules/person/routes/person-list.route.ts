@@ -4,7 +4,7 @@ import { withHttp, ok, parseQuery } from '../../../shared';
 import { PersonListQueryDto } from '../dtos/person-list.dto';
 import { buildListPersonsSql } from '../person.query';
 import { PersonRepository } from '../person.repository';
-import { PersonRoutes } from '.';
+import { PersonRoutes } from './index';
 
 const listPersonsHandler = withHttp(
   async (req: HttpRequest, ctx: InvocationContext): Promise<HttpResponseInit> => {

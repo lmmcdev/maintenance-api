@@ -1,6 +1,6 @@
 // src/modules/person/dtos/person-create.dto.ts
 import { z } from 'zod';
-import { PhoneSchema } from '../../../shared';
+import { PersonRole, PhoneSchema } from '../../../shared';
 
 const NameSchema = z
   .string()
@@ -9,7 +9,7 @@ const NameSchema = z
   .max(80, 'Máximo 80 caracteres')
   .transform((s) => s.replace(/\s+/g, ' '));
 
-export const PersonRoleSchema = z.enum(['admin', 'user']);
+export const PersonRoleSchema = z.enum(PersonRole);
 
 export const PersonCreateDto = z
   .object({
@@ -22,7 +22,7 @@ export const PersonCreateDto = z
       .max(254)
       .transform((s) => s.toLowerCase())
       .optional(),
-    role: PersonRoleSchema.default('user'),
+    role: PersonRoleSchema.default(PersonRole.TECHNICIAN),
   })
   .strict();
 

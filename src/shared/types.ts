@@ -46,3 +46,8 @@ export const PhoneSchema = z
   .min(7)
   .max(30)
   .regex(/^\+?[0-9\s\-().]+$/, 'Teléfono inválido');
+
+export enum PersonRole {
+  SUPERVISOR = 'supervisor',
+  TECHNICIAN = 'technician',
+}
