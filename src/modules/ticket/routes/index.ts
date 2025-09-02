@@ -3,13 +3,13 @@ import { env } from '../../../config/env';
 
 export const API_VERSION = env.api.version;
 export const TICKETS_ROUTE = env.api.ticketRoute;
-const TICKETS_BASE = `${API_VERSION}/${TICKETS_ROUTE}`;
+const ROUTE_BASE = `${API_VERSION}/${TICKETS_ROUTE}`;
 
 export const TicketRoutes = {
-  create: TICKETS_BASE, // POST   /api/v1/tickets
-  list: TICKETS_BASE, // GET    /api/v1/tickets
-  get: `${TICKETS_BASE}/{id}`, // GET    /api/v1/tickets/{id}
-  update: `${TICKETS_BASE}/{id}`, // PATCH  /api/v1/tickets/{id}
-  status: `${TICKETS_BASE}/{id}/status`, // PATCH  /api/v1/tickets/{id}/status
-  delete: `${TICKETS_BASE}/{id}`, // DELETE /api/v1/tickets/{id}
+  create: ROUTE_BASE, // POST   /api/v1/tickets
+  list: ROUTE_BASE, // GET    /api/v1/tickets
+  get: `${ROUTE_BASE}/{id}`, // GET    /api/v1/tickets/{id}
+  update: `${ROUTE_BASE}/{id}`, // PATCH  /api/v1/tickets/{id}
+  status: `${ROUTE_BASE}/{id}/status`, // PATCH  /api/v1/tickets/{id}/status
+  delete: `${ROUTE_BASE}/{id}`, // DELETE /api/v1/tickets/{id}
 };
