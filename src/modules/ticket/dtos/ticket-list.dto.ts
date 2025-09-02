@@ -13,13 +13,52 @@ export const DateDDMMYYYY = z
     return d;
   });
 
+const StatusParam = z.union([
+  z
+    .string()
+    .transform((val) => val.toUpperCase())
+    .pipe(z.enum(TicketStatus)),
+  z.array(
+    z
+      .string()
+      .transform((val) => val.toUpperCase())
+      .pipe(z.enum(TicketStatus)),
+  ),
+]);
+
+const PriorityParam = z.union([
+  z
+    .string()
+    .transform((val) => val.toUpperCase())
+    .pipe(z.enum(TicketPriority)),
+  z.array(
+    z
+      .string()
+      .transform((val) => val.toUpperCase())
+      .pipe(z.enum(TicketPriority)),
+  ),
+]);
+
+const CategoryParam = z.union([
+  z
+    .string()
+    .transform((val) => val.toUpperCase())
+    .pipe(z.enum(TicketCategory)),
+  z.array(
+    z
+      .string()
+      .transform((val) => val.toUpperCase())
+      .pipe(z.enum(TicketCategory)),
+  ),
+]);
+
 export const ListTicketsQueryDto = z
   .object({
     // Filtros
     q: z.string().trim().optional(),
-    status: z.enum(TicketStatus).optional(),
-    priority: z.enum(TicketPriority).optional(),
-    category: z.enum(TicketCategory).optional(),
+    status: StatusParam.optional(),
+    priority: PriorityParam.optional(),
+    category: CategoryParam.optional(),
 
     // Rango por fecha de creación (DD-MM-YYYY)
     createdFrom: DateDDMMYYYY.optional(),
