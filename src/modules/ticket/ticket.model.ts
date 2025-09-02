@@ -22,7 +22,6 @@ export interface TicketModel extends BaseDocument {
   assignee?: PersonModel | null;
 
   resolvedAt?: string | null;
-  closedAt?: string | null;
 }
 
 export const createNewTicket = (
@@ -43,7 +42,6 @@ export const createNewTicket = (
     assigneeId: null,
     assignee: null,
     resolvedAt: null,
-    closedAt: null,
     id: crypto.randomUUID(),
     createdAt: now,
     updatedAt: now,

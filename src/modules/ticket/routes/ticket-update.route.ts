@@ -28,14 +28,11 @@ const updateTicketHandler = withHttp(
     const computed: Partial<TicketModel> = { updatedAt: now };
 
     // --- reglas de estado → timestamps ---
-    if (patch.status === TicketStatus.RESOLVED) {
+    if (patch.status === TicketStatus.DONE) {
       if (patch.resolvedAt === undefined || patch.resolvedAt === null) computed.resolvedAt = now;
-    } else if (patch.status === TicketStatus.CLOSED) {
-      if (patch.closedAt === undefined || patch.closedAt === null) computed.closedAt = now;
       if (patch.resolvedAt === undefined) computed.resolvedAt = patch.resolvedAt ?? now;
     } else if (patch.status === TicketStatus.OPEN || patch.status === TicketStatus.IN_PROGRESS) {
       if (patch.resolvedAt === undefined) computed.resolvedAt = null;
-      if (patch.closedAt === undefined) computed.closedAt = null;
     }
 
     // --- dedupe attachments si vienen ---

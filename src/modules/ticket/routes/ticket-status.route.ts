@@ -23,17 +23,11 @@ const updateTicketStatusHandler = withHttp(
     const patch: Partial<TicketModel> = { status, updatedAt: now };
 
     // Reglas de timestamps derivadas del estado
-    if (status === TicketStatus.RESOLVED) {
-      patch.resolvedAt = now; // marcar resuelto
-      // no cerramos automáticamente (ajústalo si quieres)
-    } else if (status === TicketStatus.CLOSED) {
-      patch.closedAt = now; // marcar cerrado
-      // asegura resolvedAt si no estuviera (opcional)
-      patch.resolvedAt = patch.resolvedAt ?? now;
+    if (status === TicketStatus.DONE) {
+      patch.resolvedAt = now; // marcar done
     } else if (status === TicketStatus.OPEN || status === TicketStatus.IN_PROGRESS) {
-      // re-abrir: limpiar marcas de resuelto/cerrado
+      // re-abrir: limpiar marcas de done
       patch.resolvedAt = null;
-      patch.closedAt = null;
     }
 
     const updated = await service.updateTicket(id, patch);
