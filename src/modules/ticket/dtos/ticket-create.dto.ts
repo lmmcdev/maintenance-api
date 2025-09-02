@@ -1,7 +1,8 @@
 import { z } from 'zod';
 import { AttachmentRefSchema } from '../../attachment/attachment.dto';
 import { PersonCreateDto } from '../../person/dtos/person-create.dto';
-import { TicketStatus, TicketPriority, TicketCategory, PhoneSchema } from '../../../shared';
+import { TicketStatus, TicketPriority, PhoneSchema } from '../../../shared';
+import { TicketCategory, SimpleSubcategorySchema } from '../taxonomy.simple';
 
 export const CreateTicketDto = z
   .object({
@@ -13,6 +14,7 @@ export const CreateTicketDto = z
     status: z.enum(TicketStatus).optional(),
     priority: z.enum(TicketPriority).optional(),
     category: z.enum(TicketCategory).optional(),
+    subcategory: SimpleSubcategorySchema.optional().nullable(),
 
     attachments: z.array(AttachmentRefSchema).optional().default([]),
 

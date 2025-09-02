@@ -49,3 +49,6 @@ __azurite_db*__.json
 
 # vsc
 /.vscode
+
+# mocks
+/mocks
