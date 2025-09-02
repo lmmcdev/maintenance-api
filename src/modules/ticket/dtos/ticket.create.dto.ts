@@ -1,0 +1,49 @@
+import { z } from 'zod';
+import { AttachmentRefSchema } from '../../attachment/attachment.dto';
+import { PersonRefSchema } from '../../person/person.dto';
+import { TicketStatus, TicketPriority, TicketCategory } from '../../../shared';
+
+const PhoneSchema = z
+  .string()
+  .trim()
+  .min(7)
+  .max(30)
+  .regex(/^\+?[0-9\s\-().]+$/, 'Teléfono inválido');
+
+export const CreateTicketDto = z
+  .object({
+    title: z.string().min(1).optional().nullable(),
+    phoneNumber: PhoneSchema,
+    description: z.string().min(1).max(1000),
+    audio: AttachmentRefSchema,
+
+    status: z.enum(TicketStatus).optional(),
+    priority: z.enum(TicketPriority).optional(),
+    category: z.enum(TicketCategory).optional(),
+
+    attachments: z.array(AttachmentRefSchema).optional().default([]),
+
+    assigneeId: z.uuid().optional().nullable(),
+    assignee: PersonRefSchema.optional().nullable(),
+  })
+  .strict()
+  .superRefine((v, ctx) => {
+    if (v.assigneeId && v.assignee) {
+      ctx.addIssue({
+        code: 'custom',
+        message: 'Usa solo assigneeId o assignee, no ambos.',
+        path: ['assignee'],
+      });
+    }
+  })
+  .transform((v) => {
+    const seen = new Set<string>();
+    const attachments = (v.attachments ?? []).filter((a) => {
+      if (seen.has(a.id)) return false;
+      seen.add(a.id);
+      return true;
+    });
+    return { ...v, attachments };
+  });
+
+export type CreateTicketDto = z.infer<typeof CreateTicketDto>;
