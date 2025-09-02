@@ -35,6 +35,40 @@ jobs:
       - name: Test
         run: npm test --if-present
 
+      - name: Generate build info
+        run: |
+          COMMIT_SHA=$(git rev-parse HEAD)
+          SHORT_SHA=$(git rev-parse --short HEAD)
+          COMMIT_MESSAGE=$(git log -1 --pretty=%s | sed 's/"/\\"/g')
+          COMMIT_AUTHOR=$(git log -1 --pretty=%an | sed 's/"/\\"/g')
+          BRANCH="${GITHUB_REF_NAME}"
+          BUILD_TIME=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
+          REPO="${GITHUB_REPOSITORY}"
+          RUN_ID="${GITHUB_RUN_ID}"
+          RUN_NUMBER="${GITHUB_RUN_NUMBER}"
+          VERSION=$(node -e "console.log(require('./package.json').version || '')")
+          cat > build-info.json <<EOF
+          {
+            "appName": "${{ env.APP_NAME }}",
+            "version": "$VERSION",
+            "commit": {
+              "sha": "$COMMIT_SHA",
+              "short": "$SHORT_SHA",
+              "message": "$COMMIT_MESSAGE",
+              "author": "$COMMIT_AUTHOR",
+              "branch": "$BRANCH"
+            },
+            "ci": {
+              "repo": "$REPO",
+              "runId": "$RUN_ID",
+              "runNumber": "$RUN_NUMBER",
+              "workflow": "${{ github.workflow }}"
+            },
+            "builtAt": "$BUILD_TIME",
+            "env": "production"
+          }
+          EOF
+
       - name: Upload build artifact
         uses: actions/upload-artifact@v4
         with:
