@@ -8,7 +8,6 @@ import { PersonRoutes } from './index';
 
 const createPersonHandler = withHttp(
   async (req: HttpRequest, ctx: InvocationContext): Promise<HttpResponseInit> => {
-    // Valida y parsea body (Zod)
     const dto = await parseJson(req, PersonCreateDto);
 
     const service = new PersonService(new PersonRepository());
@@ -36,7 +35,7 @@ const createPersonHandler = withHttp(
   },
 );
 
-app.http('create-person', {
+app.http('persons-create', {
   methods: ['POST'],
   authLevel: 'anonymous',
   route: PersonRoutes.create,
