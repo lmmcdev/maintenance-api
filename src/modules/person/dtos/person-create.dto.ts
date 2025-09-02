@@ -1,5 +1,6 @@
 // src/modules/person/dtos/person-create.dto.ts
 import { z } from 'zod';
+import { PhoneSchema } from '../../../shared';
 
 const NameSchema = z
   .string()
@@ -14,6 +15,7 @@ export const PersonCreateDto = z
   .object({
     firstName: NameSchema,
     lastName: NameSchema,
+    phoneNumber: PhoneSchema.optional(),
     email: z
       .email('Email inválido')
       .trim()

@@ -1,6 +1,7 @@
 // src/modules/person/dtos/person-list.dto.ts
 import { z } from 'zod';
 import { PersonRoleSchema } from './person-create.dto';
+import { PhoneSchema } from '../../../shared';
 
 // Fecha en DD-MM-YYYY → Date
 export const DateDDMMYYYY = z
@@ -19,6 +20,7 @@ export const PersonListQueryDto = z
     q: z.string().trim().optional(), // busca en firstName/lastName/email
     role: PersonRoleSchema.optional(),
     email: z.email().trim().toLowerCase().optional(),
+    phoneNumber: PhoneSchema.optional(),
 
     // Rango por fechas (creación)
     createdFrom: DateDDMMYYYY.optional(),
