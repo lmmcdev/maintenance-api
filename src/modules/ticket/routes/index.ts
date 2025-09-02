@@ -1,6 +1,9 @@
 // src/modules/ticket/routes/index.ts
-export const API_V = 'v1';
-export const TICKETS_BASE = `${API_V}/tickets`;
+import { env } from '../../../config/env';
+
+export const API_VERSION = env.api.version;
+export const TICKETS_ROUTE = env.api.ticketRoute;
+const TICKETS_BASE = `${API_VERSION}/${TICKETS_ROUTE}`;
 
 export const TicketRoutes = {
   create: TICKETS_BASE, // POST   /api/v1/tickets

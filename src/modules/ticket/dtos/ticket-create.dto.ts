@@ -1,6 +1,6 @@
 import { z } from 'zod';
 import { AttachmentRefSchema } from '../../attachment/attachment.dto';
-import { PersonRefSchema } from '../../person/person.dto';
+import { PersonRefSchema } from '../../person/dtos/person.dto';
 import { TicketStatus, TicketPriority, TicketCategory } from '../../../shared';
 
 const PhoneSchema = z

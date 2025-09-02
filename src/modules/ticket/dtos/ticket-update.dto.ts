@@ -1,10 +1,9 @@
-// src/modules/ticket/ticket.update.dto.ts
+// src/modules/ticket/dtos/ticket-update.dto.ts
 import { z } from 'zod';
 import { AttachmentRefSchema } from '../../attachment/attachment.dto';
-import { PersonRefSchema } from '../../person/person.dto';
 import { TicketStatus, TicketPriority, TicketCategory } from '../../../shared';
 
-// Teléfono básico; si quieres E.164, cambia el regex.
+// Teléfono básico; si usas E.164, reemplaza el regex por /^\+[1-9]\d{7,14}$/
 const PhoneSchema = z
   .string()
   .trim()
@@ -14,32 +13,23 @@ const PhoneSchema = z
 
 export const UpdateTicketDto = z
   .object({
-    title: z.string().min(1).optional().nullable(),
+    title: z.string().min(1).optional(), // sin null
     phoneNumber: PhoneSchema.optional(),
     description: z.string().min(1).max(2000).optional(),
 
-    status: z.nativeEnum(TicketStatus).optional(),
-    priority: z.nativeEnum(TicketPriority).optional(),
-    category: z.nativeEnum(TicketCategory).optional(),
+    status: z.enum(TicketStatus).optional(),
+    priority: z.enum(TicketPriority).optional(),
+    category: z.enum(TicketCategory).optional(),
 
     attachments: z.array(AttachmentRefSchema).optional(),
 
+    // 👇 solo assigneeId (uuid o null para desasignar)
     assigneeId: z.string().uuid().optional().nullable(),
-    assignee: PersonRefSchema.optional().nullable(),
 
-    // timestamps ISO (los setea el server normalmente)
+    // timestamps (si el cliente los manda; normalmente los computa el server)
     resolvedAt: z.string().datetime({ offset: true }).nullable().optional(),
     closedAt: z.string().datetime({ offset: true }).nullable().optional(),
   })
-  .strict()
-  .superRefine((v, ctx) => {
-    // No permitir ambos a la vez (ajusta si quieres lo contrario)
-    if (v.assigneeId && v.assignee) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        message: 'Usa solo assigneeId o assignee, no ambos.',
-        path: ['assignee'],
-      });
-    }
-  });
+  .strict();
+
 export type UpdateTicketDto = z.infer<typeof UpdateTicketDto>;

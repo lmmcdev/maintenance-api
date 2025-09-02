@@ -1,6 +1,6 @@
 // src/modules/ticket/ticket.model.ts
 import { TicketCategory, TicketPriority, TicketStatus } from '../../shared';
-import { PersonRef } from '../person/person.model';
+import { PersonModel } from '../person/person.model';
 import { AttachmentRef } from '../attachment/attachment.model';
 import { BaseDocument } from '../../infra/cosmos.repository';
 import crypto from 'crypto';
@@ -19,7 +19,7 @@ export interface TicketModel extends BaseDocument {
   attachments?: AttachmentRef[];
 
   assigneeId?: string | null;
-  assignee?: PersonRef | null;
+  assignee?: PersonModel | null;
 
   resolvedAt?: string | null;
   closedAt?: string | null;
