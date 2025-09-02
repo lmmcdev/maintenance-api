@@ -1,10 +1,11 @@
 // src/modules/ticket/ticket.repository.ts
 import { CosmosRepository } from '../../infra/cosmos.repository';
 import { TicketModel } from './ticket.model';
+import { env } from '../../config/env';
 
 export class TicketRepository extends CosmosRepository<TicketModel> {
   constructor() {
-    super('tickets', '/id');
+    super(env.cosmosDB.ticketContainer, '/id');
   }
 
   async create(

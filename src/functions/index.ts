@@ -11,3 +11,4 @@ import '../modules/ticket/routes/ticket-delete.route';
 
 // persons - route
 import '../modules/person/routes/person-create.route';
+import '../modules/person/routes/person-update.route';

@@ -2,10 +2,11 @@
 import { SqlQuerySpec } from '@azure/cosmos';
 import { CosmosRepository } from '../../infra/cosmos.repository';
 import type { PersonModel } from './person.model';
+import { env } from '../../config/env';
 
 export class PersonRepository extends CosmosRepository<PersonModel> {
   constructor() {
-    super('persons', '/id');
+    super(env.cosmosDB.personContainer, '/id');
   }
 
   async init() {
