@@ -49,7 +49,7 @@ export function createNewTicket(
     createdAt: now,
     updatedAt: now,
 
-    title: opts?.title ?? 'New Ticket',
+    title: opts?.title ?? `Maintenance Ticket ${phoneNumber}`,
     phoneNumber,
     description,
 

@@ -2,10 +2,11 @@
 import { SqlQuerySpec } from '@azure/cosmos';
 import { CosmosRepository } from '../../infra/cosmos.repository';
 import { CategoryModel, SubcategoryModel } from './category.model';
+import { env } from '../../config/env';
 
 export class CategoryRepository extends CosmosRepository<CategoryModel> {
   constructor() {
-    super('categories', '/id');
+    super(env.cosmosDB.categoryContainer, '/id');
   }
 
   async init() {

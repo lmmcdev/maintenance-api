@@ -4,7 +4,10 @@ import { TicketStatus } from '../../../shared';
 
 export const UpdateStatusDto = z
   .object({
-    status: z.enum(TicketStatus),
+    status: z
+      .string()
+      .transform((val) => val.toUpperCase())
+      .pipe(z.enum(TicketStatus)),
   })
   .strict();
 

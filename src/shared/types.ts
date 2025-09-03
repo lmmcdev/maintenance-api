@@ -20,12 +20,7 @@ export enum TicketCategory {
   GENERAL = 'GENERAL',
 }
 
-export const PhoneSchema = z
-  .string()
-  .trim()
-  .min(7)
-  .max(30)
-  .regex(/^\+?[0-9\s\-().]+$/, 'Teléfono inválido');
+export const PhoneSchema = z.string().trim().min(4);
 
 export enum PersonRole {
   SUPERVISOR = 'supervisor',
