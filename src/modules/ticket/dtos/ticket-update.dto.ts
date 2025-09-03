@@ -10,7 +10,11 @@ export const UpdateTicketDto = z
     phoneNumber: PhoneSchema.optional(),
     description: z.string().min(1).max(2000).optional(),
 
-    status: z.enum(TicketStatus).optional(),
+    status: z
+      .string()
+      .transform((val) => val.toUpperCase())
+      .pipe(z.enum(TicketStatus))
+      .optional(),
     priority: z.enum(TicketPriority).optional(),
 
     category: z.enum(TicketCategory).optional(),

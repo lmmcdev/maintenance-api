@@ -13,48 +13,23 @@ export const DateDDMMYYYY = z
     return d;
   });
 
-const StatusParam = z.union([
-  z
-    .string()
-    .transform((val) => val.toUpperCase())
-    .pipe(z.enum(TicketStatus)),
-  z.array(
-    z
-      .string()
-      .transform((val) => val.toUpperCase())
-      .pipe(z.enum(TicketStatus)),
-  ),
-]);
+const StatusParam = z
+  .string()
+  .transform((val) => val.toUpperCase())
+  .pipe(z.enum(TicketStatus));
 
-const PriorityParam = z.union([
-  z
-    .string()
-    .transform((val) => val.toUpperCase())
-    .pipe(z.enum(TicketPriority)),
-  z.array(
-    z
-      .string()
-      .transform((val) => val.toUpperCase())
-      .pipe(z.enum(TicketPriority)),
-  ),
-]);
+const PriorityParam = z
+  .string()
+  .transform((val) => val.toUpperCase())
+  .pipe(z.enum(TicketPriority));
 
-const CategoryParam = z.union([
-  z
-    .string()
-    .transform((val) => val.toUpperCase())
-    .pipe(z.enum(TicketCategory)),
-  z.array(
-    z
-      .string()
-      .transform((val) => val.toUpperCase())
-      .pipe(z.enum(TicketCategory)),
-  ),
-]);
+const CategoryParam = z
+  .string()
+  .transform((val) => val.toUpperCase())
+  .pipe(z.enum(TicketCategory));
 
 export const ListTicketsQueryDto = z
   .object({
-    // Filtros
     q: z.string().trim().optional(),
     status: StatusParam.optional(),
     priority: PriorityParam.optional(),
