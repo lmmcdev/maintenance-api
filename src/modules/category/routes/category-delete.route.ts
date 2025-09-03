@@ -26,7 +26,7 @@ const handler = withHttp(async (req, ctx): Promise<HttpResponseInit> => {
 });
 
 app.http('category-delete', {
-  methods: ['DELETE'],
+  methods: ['DELETE', 'OPTIONS'],
   authLevel: 'anonymous',
   route: CategoryRoutes.delete,
   handler,

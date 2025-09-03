@@ -12,7 +12,7 @@ const handler = withHttp(async (_req, _ctx): Promise<HttpResponseInit> => {
 });
 
 app.http('category-list', {
-  methods: ['GET'],
+  methods: ['GET', 'OPTIONS'],
   authLevel: 'anonymous',
   route: CategoryRoutes.list,
   handler,

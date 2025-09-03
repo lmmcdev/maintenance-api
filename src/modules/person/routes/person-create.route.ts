@@ -35,7 +35,7 @@ const createPersonHandler = withHttp(
 );
 
 app.http('persons-create', {
-  methods: ['POST'],
+  methods: ['POST', 'OPTIONS'],
   authLevel: 'anonymous',
   route: PersonRoutes.create,
   handler: createPersonHandler,

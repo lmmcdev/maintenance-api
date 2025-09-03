@@ -46,7 +46,7 @@ const updatePersonHandler = withHttp(
 );
 
 app.http('update-person-byId', {
-  methods: ['PATCH'],
+  methods: ['PATCH', 'OPTIONS'],
   authLevel: 'anonymous',
   route: PersonRoutes.update, // URL final: /api/v1/persons/{id}
   handler: updatePersonHandler,

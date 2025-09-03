@@ -32,7 +32,7 @@ const listPersonsHandler = withHttp(
 );
 
 app.http('persons-list', {
-  methods: ['GET'],
+  methods: ['GET', 'OPTIONS'],
   authLevel: 'anonymous',
   route: PersonRoutes.list,
   handler: listPersonsHandler,

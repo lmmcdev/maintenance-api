@@ -26,7 +26,7 @@ const handler = withHttp(async (req, ctx): Promise<HttpResponseInit> => {
 });
 
 app.http('category-get', {
-  methods: ['GET'],
+  methods: ['GET', 'OPTIONS'],
   authLevel: 'anonymous',
   route: CategoryRoutes.get,
   handler,

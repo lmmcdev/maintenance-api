@@ -21,7 +21,7 @@ const createTicketHandler = withHttp(
 );
 
 app.http('tickets-create', {
-  methods: ['POST'],
+  methods: ['POST', 'OPTIONS'],
   authLevel: 'anonymous',
   route: TicketRoutes.create,
   handler: createTicketHandler,

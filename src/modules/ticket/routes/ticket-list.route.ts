@@ -9,15 +9,13 @@ import { TicketRoutes } from './index';
 
 const listTicketsHandler = withHttp(
   async (req: HttpRequest, ctx: InvocationContext): Promise<HttpResponseInit> => {
-    // parseQuery debe convertir search params a objeto; luego Zod valida/transforma
     const query = await parseQuery(req, ListTicketsQueryDto);
 
     const service = new TicketService(new TicketRepository());
     await service.init();
 
     const sql = buildListTicketsSql(query);
-    // Pásale limit y continuationToken si tu repo los soporta vía options
-    // Puedes estandarizarlo así: { query, parameters, limit, continuationToken }
+
     const { items, continuationToken } = await service.listTickets({
       ...sql,
       limit: query.limit,
@@ -37,7 +35,7 @@ const listTicketsHandler = withHttp(
 );
 
 app.http('tickets-list', {
-  methods: ['GET'],
+  methods: ['GET', 'OPTIONS'],
   authLevel: 'anonymous',
   route: TicketRoutes.list,
   handler: listTicketsHandler,

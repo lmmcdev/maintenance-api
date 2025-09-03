@@ -42,7 +42,7 @@ const handler = withHttp(async (req, ctx): Promise<HttpResponseInit> => {
 });
 
 app.http('subcategory-update', {
-  methods: ['PATCH'],
+  methods: ['PATCH', 'OPTIONS'],
   authLevel: 'anonymous',
   route: CategoryRoutes.subUpdate,
   handler,

@@ -78,7 +78,7 @@ const handler = withHttp(
 );
 
 app.http('category-seed', {
-  methods: ['POST'],
+  methods: ['POST', 'OPTIONS'],
   authLevel: 'anonymous',
   route: `${CategoryRoutes.list}/seed`, // v1/categories/seed
   handler,

@@ -34,7 +34,7 @@ const deleteTicketHandler = withHttp(
 );
 
 app.http('tickets-delete', {
-  methods: ['DELETE'],
+  methods: ['DELETE', 'OPTIONS'],
   authLevel: 'anonymous',
   route: TicketRoutes.delete, // "v1/tickets/{id}" (con /api implícito)
   handler: deleteTicketHandler,

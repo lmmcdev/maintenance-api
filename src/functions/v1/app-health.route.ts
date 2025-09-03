@@ -63,7 +63,7 @@ const handler = withHttp(
 );
 
 app.http('app-health', {
-  methods: ['GET'],
+  methods: ['GET', 'OPTIONS'],
   authLevel: 'anonymous',
   route: 'v1/health', // => /api/v1/health
   handler,

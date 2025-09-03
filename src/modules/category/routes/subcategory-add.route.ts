@@ -24,7 +24,7 @@ const handler = withHttp(async (req, ctx): Promise<HttpResponseInit> => {
 });
 
 app.http('subcategory-add', {
-  methods: ['POST'],
+  methods: ['POST', 'OPTIONS'],
   authLevel: 'anonymous',
   route: CategoryRoutes.subAdd,
   handler,

@@ -20,7 +20,7 @@ const handler = withHttp(
 );
 
 app.http('category-create', {
-  methods: ['POST'],
+  methods: ['POST', 'OPTIONS'],
   authLevel: 'anonymous',
   route: CategoryRoutes.create,
   handler,

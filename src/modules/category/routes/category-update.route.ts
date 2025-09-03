@@ -18,7 +18,7 @@ const handler = withHttp(async (req, ctx): Promise<HttpResponseInit> => {
 });
 
 app.http('category-update', {
-  methods: ['PATCH'],
+  methods: ['PATCH', 'OPTIONS'],
   authLevel: 'anonymous',
   route: CategoryRoutes.update,
   handler,
