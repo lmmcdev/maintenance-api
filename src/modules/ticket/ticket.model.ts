@@ -16,7 +16,7 @@ export interface TicketModel extends BaseDocument {
   attachments: AttachmentRef[];
 
   // estado/prioridad (3 estados)
-  status: TicketStatus; // "NEW" | "IN_PROGRESS" | "DONE"
+  status: TicketStatus; // "NEW" | "OPEN" | "DONE"
   priority: TicketPriority; // "LOW" | "MEDIUM" | "HIGH"
 
   // clasificación simple

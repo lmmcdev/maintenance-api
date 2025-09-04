@@ -2,7 +2,7 @@ import z from 'zod';
 
 export enum TicketStatus {
   NEW = 'NEW',
-  IN_PROGRESS = 'IN_PROGRESS',
+  OPEN = 'OPEN',
   DONE = 'DONE',
 }
 
@@ -23,6 +23,6 @@ export enum TicketCategory {
 export const PhoneSchema = z.string().trim().min(4);
 
 export enum PersonRole {
-  SUPERVISOR = 'supervisor',
-  TECHNICIAN = 'technician',
+  SUPERVISOR = 'SUPERVISOR',
+  TECHNICIAN = 'TECHNICIAN',
 }
