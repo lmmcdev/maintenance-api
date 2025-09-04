@@ -2,15 +2,15 @@
 import type { BaseDocument } from '../../infra/cosmos.repository';
 
 export interface SubcategoryModel {
-  name: string; // clave interna (ej: PAINTING)
-  displayName: string; // ej: Pintado de paredes
+  name: string;
+  displayName: string;
   isActive: boolean;
   order?: number;
 }
 
 export interface CategoryModel extends BaseDocument {
-  id: string; // clave de categoría (ej: PREVENTIVE)
-  displayName: string; // ej: Mantenimiento Preventivo
+  id: string;
+  displayName: string;
   description?: string;
   isActive: boolean;
   subcategories: SubcategoryModel[];

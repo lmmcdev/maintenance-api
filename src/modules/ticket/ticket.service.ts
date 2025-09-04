@@ -40,7 +40,6 @@ export class TicketService {
     if (status === TicketStatus.DONE) {
       p.resolvedAt = p.resolvedAt ?? now;
     } else {
-      // OPEN o IN_PROGRESS
       p.resolvedAt = null;
     }
     return p;
@@ -52,12 +51,11 @@ export class TicketService {
   }
 
   async reopenTicket(id: string) {
-    // reabrir = NEW
     return this.ticketRepository.update(id, this.patchForStatus(TicketStatus.NEW));
   }
 
   async inProgressTicket(id: string) {
-    return this.ticketRepository.update(id, this.patchForStatus(TicketStatus.IN_PROGRESS));
+    return this.ticketRepository.update(id, this.patchForStatus(TicketStatus.OPEN));
   }
 
   async assignTicket(id: string, assigneeId: string) {

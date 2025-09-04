@@ -27,7 +27,7 @@ const updateTicketStatusHandler = withHttp(
       // cerrar: marca closedAt (y opcionalmente resolvedAt para compatibilidad)
 
       patch.resolvedAt = patch.resolvedAt ?? now;
-    } else if (status === TicketStatus.NEW || status === TicketStatus.IN_PROGRESS) {
+    } else if (status === TicketStatus.NEW || status === TicketStatus.OPEN) {
       // reabrir o en curso: limpia marcas
       patch.resolvedAt = null;
     }
