@@ -8,6 +8,7 @@ import '../modules/ticket/routes/ticket-get.route';
 import '../modules/ticket/routes/ticket-list.route';
 import '../modules/ticket/routes/ticket-status.route';
 import '../modules/ticket/routes/ticket-delete.route';
+import '../modules/ticket/routes/ticket-delete-all.route';
 
 // persons - route
 import '../modules/person/routes/person-create.route';

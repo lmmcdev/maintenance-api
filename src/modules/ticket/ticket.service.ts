@@ -59,6 +59,13 @@ export class TicketService {
   }
 
   async assignTicket(id: string, assigneeId: string) {
-    return this.ticketRepository.update(id, { assigneeId });
+    return this.ticketRepository.update(id, {
+      assigneeIds: [assigneeId],
+      updatedAt: new Date().toISOString(),
+    });
+  }
+
+  async deleteAllTickets(): Promise<number> {
+    return this.ticketRepository.deleteAll();
   }
 }

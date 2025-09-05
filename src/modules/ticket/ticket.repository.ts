@@ -27,4 +27,25 @@ export class TicketRepository extends CosmosRepository<TicketModel> {
   async list(sql: any): Promise<{ items: TicketModel[]; continuationToken?: string }> {
     return super.list(sql);
   }
+
+  async deleteAll(): Promise<number> {
+    const query = {
+      query: 'SELECT * FROM c',
+      parameters: []
+    };
+    
+    const { items } = await this.list(query);
+    let deletedCount = 0;
+    
+    for (const item of items) {
+      try {
+        await this.delete(item.id);
+        deletedCount++;
+      } catch (error) {
+        console.error(`Failed to delete ticket ${item.id}:`, error);
+      }
+    }
+    
+    return deletedCount;
+  }
 }

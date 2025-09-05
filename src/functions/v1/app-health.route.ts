@@ -1,8 +1,11 @@
 // src/modules/health/health.route.ts
 import { app, HttpRequest, HttpResponseInit, InvocationContext } from '@azure/functions';
-import { withHttp, ok } from '../../shared';
 import { promises as fs } from 'fs';
 import path from 'path';
+
+import { withHttp, ok } from '../../shared';
+import { getClientPrincipal } from '../../lib/auth';
+import { th } from 'zod/locales';
 
 type BuildInfo = {
   appName?: string;
@@ -26,8 +29,28 @@ async function readBuildInfo(): Promise<BuildInfo | null> {
   }
 }
 
+interface ClientPrincipal {
+  userId: string;
+  userDetails: string;
+  identityProvider: string;
+  userRoles: string[];
+}
+
 const handler = withHttp(
-  async (_req: HttpRequest, ctx: InvocationContext): Promise<HttpResponseInit> => {
+  async (req: HttpRequest, ctx: InvocationContext): Promise<HttpResponseInit> => {
+    const clientPrincipalHeader = req.headers.get('x-ms-client-principal');
+    if (!clientPrincipalHeader) {
+      return { status: 401, jsonBody: { message: 'No authentication header' } };
+    }
+    const decoded = Buffer.from(clientPrincipalHeader, 'base64').toString('utf8');
+    const clientPrincipal: ClientPrincipal = JSON.parse(decoded);
+
+    ctx.log(`Health check requested by user ${clientPrincipal.userId}`);
+
+    if (!clientPrincipal || !clientPrincipal.userId) {
+      return { status: 401, jsonBody: { message: 'Invalid authentication header' } };
+    }
+
     const bi = await readBuildInfo();
 
     // Fallback a variables de entorno si no hay archivo

@@ -4,7 +4,7 @@ import { TicketService } from '../ticket.service';
 import { TicketRepository } from '../ticket.repository';
 import { withHttp, parseJson, created } from '../../../shared';
 import { CreateTicketDto } from '../dtos/ticket-create.dto';
-import { createNewTicket } from '../ticket.model';
+import { createNewTicket, TicketModel } from '../ticket.model';
 import { TicketRoutes } from './index';
 
 const createTicketHandler = withHttp(
@@ -13,7 +13,7 @@ const createTicketHandler = withHttp(
     await service.init();
     const { audio, description, phoneNumber } = await parseJson(req, CreateTicketDto);
 
-    const dto = createNewTicket(audio, description, phoneNumber);
+    const dto: TicketModel = createNewTicket(audio, description, phoneNumber ?? 'Unknown');
     const data = await service.createTicket(dto);
     ctx.info('Ticket created with ID:', data.id);
     return created(ctx, data);
