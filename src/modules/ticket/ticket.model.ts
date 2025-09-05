@@ -8,7 +8,7 @@ import { TicketCategory, SubcategoryName } from './taxonomy.simple';
 export interface TicketModel extends BaseDocument {
   id: string;
   title: string;
-  phoneNumber: string;
+  phoneNumber?: string;
   description: string;
 
   // media
@@ -24,8 +24,8 @@ export interface TicketModel extends BaseDocument {
   subcategory: { name: SubcategoryName; displayName: string } | null;
 
   // asignación
-  assigneeId: string | null;
-  assignee: PersonModel | null;
+  assigneeIds: string[] | null;
+  assignees: PersonModel[] | null;
 
   // marcas de tiempo derivadas
   resolvedAt: string | null;
@@ -67,8 +67,8 @@ export function createNewTicket(
         }
       : null,
 
-    assigneeId: null,
-    assignee: null,
+    assigneeIds: [],
+    assignees: [],
 
     resolvedAt: null,
     closedAt: null,

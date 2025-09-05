@@ -7,7 +7,7 @@ import { TicketCategory, SimpleSubcategorySchema } from '../taxonomy.simple';
 export const CreateTicketDto = z
   .object({
     title: z.string().min(1).optional().nullable(),
-    phoneNumber: PhoneSchema,
+    phoneNumber: PhoneSchema.optional().nullable(),
     description: z.string().min(1).max(1000),
     audio: AttachmentRefSchema,
 

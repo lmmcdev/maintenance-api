@@ -12,4 +12,5 @@ export const TicketRoutes = {
   update: `${ROUTE_BASE}/{id}`, // PATCH  /api/v1/tickets/{id}
   status: `${ROUTE_BASE}/{id}/status`, // PATCH  /api/v1/tickets/{id}/status
   delete: `${ROUTE_BASE}/{id}`, // DELETE /api/v1/tickets/{id}
+  deleteAll: `${ROUTE_BASE}/all`, // DELETE /api/v1/tickets/all
 };

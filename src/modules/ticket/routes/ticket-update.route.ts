@@ -45,24 +45,27 @@ const updateTicketHandler = withHttp(
       });
     }
 
-    // --- resolver assigneeId → PersonModel (y sincronizar ambos campos del modelo) ---
-    let assigneePatch: Partial<Pick<TicketModel, 'assigneeId' | 'assignee'>> = {};
-    if ('assigneeId' in patch) {
-      if (patch.assigneeId === null) {
-        assigneePatch = { assigneeId: null, assignee: null };
-      } else if (patch.assigneeId) {
-        const person = await personService.getPerson(patch.assigneeId);
-        if (!person) {
+    // --- resolver assigneeIds → PersonModel (y sincronizar ambos campos del modelo) ---
+    let assigneePatch: Partial<Pick<TicketModel, 'assigneeIds' | 'assignees'>> = {};
+    if ('assigneeIds' in patch) {
+      if (patch.assigneeIds?.length === 0 || patch.assigneeIds === null) {
+        assigneePatch = { assigneeIds: null, assignees: null };
+      } else if (patch.assigneeIds) {
+        const persons = await Promise.all(
+          patch.assigneeIds.map((id) => personService.getPerson(id)),
+        );
+        if (persons.some((person) => !person)) {
           return {
             status: 400,
             jsonBody: {
               success: false,
-              error: { code: 'INVALID_ASSIGNEE', message: `Person ${patch.assigneeId} not found` },
+              error: { code: 'INVALID_ASSIGNEE', message: `Person ${patch.assigneeIds} not found` },
               meta: { traceId: ctx.invocationId },
             },
           };
         }
-        assigneePatch = { assigneeId: person.id, assignee: person };
+        const validPersons = persons.filter((p): p is NonNullable<typeof p> => !!p);
+        assigneePatch = { assigneeIds: validPersons.map((p) => p.id), assignees: validPersons };
       }
     }
 

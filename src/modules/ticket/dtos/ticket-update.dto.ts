@@ -22,7 +22,7 @@ export const UpdateTicketDto = z
 
     attachments: z.array(AttachmentRefSchema).optional(),
 
-    assigneeId: z.uuid().optional().nullable(),
+    assigneeIds: z.array(z.uuid()).nullable().optional(),
 
     resolvedAt: z.iso.datetime({ offset: true }).nullable().optional(),
     closedAt: z.iso.datetime({ offset: true }).nullable().optional(),
