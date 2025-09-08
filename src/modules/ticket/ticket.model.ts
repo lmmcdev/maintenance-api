@@ -60,6 +60,13 @@ export function createNewTicket(
     fullName = commaPhoneMatch[1].trim();
     // Extract just the digits from the phone number
     phoneNumber = commaPhoneMatch[2].replace(/\D/g, '');
+    
+    // Capitalize full name properly
+    fullName = fullName
+      .toLowerCase()
+      .split(' ')
+      .map((n) => n.charAt(0).toUpperCase() + n.slice(1))
+      .join(' ');
   } else {
     // Try other formats with space-separated parts
     const parts = fromText.trim().split(/\s+/);
@@ -83,6 +90,13 @@ export function createNewTicket(
       phoneNumber = parts[0];
       fullName = parts.slice(1).join(' ') || 'Unknown';
     }
+
+    // Capitalize full name properly
+    fullName = fullName
+      .toLowerCase()
+      .split(' ')
+      .map((n) => n.charAt(0).toUpperCase() + n.slice(1))
+      .join(' ');
   }
 
   return {
@@ -90,7 +104,7 @@ export function createNewTicket(
     createdAt: now,
     updatedAt: now,
 
-    title: opts?.title ?? fullName,
+    title: fullName,
     phoneNumber,
     description,
 
