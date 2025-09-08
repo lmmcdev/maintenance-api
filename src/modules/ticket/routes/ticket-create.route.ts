@@ -11,9 +11,9 @@ const createTicketHandler = withHttp(
   async (req: HttpRequest, ctx: InvocationContext): Promise<HttpResponseInit> => {
     const service = new TicketService(new TicketRepository());
     await service.init();
-    const { audio, description, phoneNumber } = await parseJson(req, CreateTicketDto);
+    const { audio, description, fromText } = await parseJson(req, CreateTicketDto);
 
-    const dto: TicketModel = createNewTicket(audio, description, phoneNumber ?? 'Unknown');
+    const dto: TicketModel = createNewTicket(audio, description, fromText ?? 'Unknown');
     const data = await service.createTicket(dto);
     ctx.info('Ticket created with ID:', data.id);
     return created(ctx, data);

@@ -35,7 +35,7 @@ export interface TicketModel extends BaseDocument {
 export function createNewTicket(
   audio: AttachmentRef,
   description: string,
-  phoneNumber: string,
+  fromText: string,
   opts?: {
     title?: string;
     category?: TicketCategory;
@@ -44,12 +44,53 @@ export function createNewTicket(
   },
 ): TicketModel {
   const now = new Date().toISOString();
+
+  // Parse fromText to extract phone and name
+  // Supported formats:
+  // - "Name, (phone)" e.g., "TAPIA SALVADON, (786) 651-6455"
+  // - "phone name phone" e.g., "5638 Esteban Ulloa 5638"
+  // - "phone name" e.g., "1234 John Doe"
+
+  let phoneNumber: string | undefined;
+  let fullName = fromText.trim();
+
+  // Check for "Name, (phone)" format
+  const commaPhoneMatch = fromText.match(/^(.+?),\s*\(?([0-9\s\-\+\(\)]+)\)?$/);
+  if (commaPhoneMatch) {
+    fullName = commaPhoneMatch[1].trim();
+    // Extract just the digits from the phone number
+    phoneNumber = commaPhoneMatch[2].replace(/\D/g, '');
+  } else {
+    // Try other formats with space-separated parts
+    const parts = fromText.trim().split(/\s+/);
+
+    if (parts.length >= 3) {
+      // Check if first and last parts are the same (likely phone number)
+      const firstPart = parts[0];
+      const lastPart = parts[parts.length - 1];
+
+      if (firstPart === lastPart && /^\d+$/.test(firstPart)) {
+        phoneNumber = firstPart;
+        // Extract name (everything between first and last phone number)
+        fullName = parts.slice(1, -1).join(' ');
+      } else if (/^\d+$/.test(firstPart)) {
+        // First part is a number, treat it as phone
+        phoneNumber = firstPart;
+        fullName = parts.slice(1).join(' ');
+      }
+    } else if (parts.length > 0 && /^\d+$/.test(parts[0])) {
+      // First part is phone number
+      phoneNumber = parts[0];
+      fullName = parts.slice(1).join(' ') || 'Unknown';
+    }
+  }
+
   return {
     id: crypto.randomUUID(),
     createdAt: now,
     updatedAt: now,
 
-    title: opts?.title ?? `Maintenance Ticket ${phoneNumber}`,
+    title: opts?.title ?? fullName,
     phoneNumber,
     description,
 
