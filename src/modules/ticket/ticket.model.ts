@@ -48,18 +48,23 @@ export function createNewTicket(
   // Parse fromText to extract phone and name
   // Supported formats:
   // - "Name, (phone)" e.g., "TAPIA SALVADON, (786) 651-6455"
+  // - "Name (phone)" e.g., "WIRELESS CALLER (305) 879-5229"
   // - "phone name phone" e.g., "5638 Esteban Ulloa 5638"
   // - "phone name" e.g., "1234 John Doe"
 
   let phoneNumber: string | undefined;
   let fullName = fromText.trim();
 
-  // Check for "Name, (phone)" format
-  const commaPhoneMatch = fromText.match(/^(.+?),\s*\(?([0-9\s\-\+\(\)]+)\)?$/);
-  if (commaPhoneMatch) {
-    fullName = commaPhoneMatch[1].trim();
+  // Check for "Name, (phone)" or "Name (phone)" format
+  const phoneMatch = fromText.match(/^(.+?),?\s*\(([0-9\s\-\+]+)\)$/);
+  if (phoneMatch) {
+    fullName = phoneMatch[1].trim();
+    // Remove trailing comma if present
+    if (fullName.endsWith(',')) {
+      fullName = fullName.slice(0, -1).trim();
+    }
     // Extract just the digits from the phone number
-    phoneNumber = commaPhoneMatch[2].replace(/\D/g, '');
+    phoneNumber = phoneMatch[2].replace(/\D/g, '');
     
     // Capitalize full name properly
     fullName = fullName
