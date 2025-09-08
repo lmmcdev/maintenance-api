@@ -3,12 +3,12 @@ import './v1/app-health.route';
 
 // tickets - route
 import '../modules/ticket/routes/ticket-create.route';
+import '../modules/ticket/routes/ticket-delete-all.route';
 import '../modules/ticket/routes/ticket-update.route';
 import '../modules/ticket/routes/ticket-get.route';
 import '../modules/ticket/routes/ticket-list.route';
 import '../modules/ticket/routes/ticket-status.route';
 import '../modules/ticket/routes/ticket-delete.route';
-import '../modules/ticket/routes/ticket-delete-all.route';
 
 // persons - route
 import '../modules/person/routes/person-create.route';
