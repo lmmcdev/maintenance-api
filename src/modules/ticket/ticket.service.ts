@@ -21,6 +21,10 @@ export class TicketService {
     return t;
   }
 
+  async getById(id: string) {
+    return this.ticketRepository.get(id);
+  }
+
   async updateTicket(id: string, patch: Partial<TicketModel>) {
     return this.ticketRepository.update(id, patch);
   }
@@ -56,6 +60,10 @@ export class TicketService {
 
   async inProgressTicket(id: string) {
     return this.ticketRepository.update(id, this.patchForStatus(TicketStatus.OPEN));
+  }
+
+  async cancelTicket(id: string) {
+    return this.ticketRepository.update(id, this.patchForStatus(TicketStatus.CANCELLED));
   }
 
   async assignTicket(id: string, assigneeId: string) {
