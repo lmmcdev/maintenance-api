@@ -156,6 +156,15 @@ function findPersonByEmail(email: string): PersonModel | null {
   return PERSON_MOCK.find((person) => person.email === email) || null;
 }
 
+export interface TicketNote {
+  id: string;
+  content: string;
+  type: 'general' | 'cancellation' | 'status_change' | 'assignment' | 'resolution';
+  createdAt: string;
+  createdBy?: string; // ID del usuario que creó la nota
+  createdByName?: string; // Nombre del usuario para referencia
+}
+
 export interface TicketModel extends BaseDocument {
   id: string;
   title: string;
@@ -163,6 +172,9 @@ export interface TicketModel extends BaseDocument {
   description: string;
 
   audio?: AttachmentRef | null;
+  // notas y observaciones (opcional para compatibilidad con tickets existentes)
+  notes?: TicketNote[];
+
   attachments: AttachmentRef[];
 
   status: TicketStatus;
@@ -322,8 +334,11 @@ export function createNewTicket(
     phoneNumber,
     description,
 
-    audio: audio || null,
-    attachments,
+    // inicializar array de notas vacío
+    notes: [],
+
+    audio,
+    attachments: [],
 
     status: TicketStatus.NEW,
     priority: opts?.priority ?? TicketPriority.MEDIUM,
@@ -349,5 +364,38 @@ export function createNewTicket(
 
     resolvedAt: null,
     closedAt: null,
+  };
+}
+
+export function createTicketNote(
+  content: string,
+  type: TicketNote['type'] = 'general',
+  createdBy?: string,
+  createdByName?: string,
+): TicketNote {
+  return {
+    id: crypto.randomUUID(),
+    content,
+    type,
+    createdAt: new Date().toISOString(),
+    createdBy,
+    createdByName,
+  };
+}
+
+export function addNoteToTicket(
+  ticket: TicketModel,
+  content: string,
+  type: TicketNote['type'] = 'general',
+  createdBy?: string,
+  createdByName?: string,
+): TicketModel {
+  const note = createTicketNote(content, type, createdBy, createdByName);
+  // Asegurar que notes existe como array, para compatibilidad con tickets existentes
+  const existingNotes = Array.isArray(ticket.notes) ? ticket.notes : [];
+  return {
+    ...ticket,
+    notes: [...existingNotes, note],
+    updatedAt: new Date().toISOString(),
   };
 }

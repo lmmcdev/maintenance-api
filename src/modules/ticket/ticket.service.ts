@@ -1,6 +1,6 @@
 // src/modules/ticket/ticket.service.ts
 import { NotFoundError, TicketStatus } from '../../shared';
-import { TicketModel } from './ticket.model';
+import { TicketModel, TicketNote, createTicketNote, addNoteToTicket } from './ticket.model';
 import { TicketRepository } from './ticket.repository';
 
 export class TicketService {
@@ -62,8 +62,25 @@ export class TicketService {
     return this.ticketRepository.update(id, this.patchForStatus(TicketStatus.OPEN));
   }
 
-  async cancelTicket(id: string) {
-    return this.ticketRepository.update(id, this.patchForStatus(TicketStatus.CANCELLED));
+  async cancelTicket(id: string, reason?: string, cancelledBy?: string, cancelledByName?: string) {
+    const patch = this.patchForStatus(TicketStatus.CANCELLED);
+    
+    // Si se proporciona una razón, agregar una nota de cancelación
+    if (reason) {
+      const ticket = await this.getById(id);
+      if (ticket) {
+        const updatedTicket = addNoteToTicket(
+          ticket,
+          reason,
+          'cancellation',
+          cancelledBy,
+          cancelledByName
+        );
+        patch.notes = updatedTicket.notes;
+      }
+    }
+    
+    return this.ticketRepository.update(id, patch);
   }
 
   async assignTicket(id: string, assigneeId: string) {
@@ -75,5 +92,34 @@ export class TicketService {
 
   async deleteAllTickets(): Promise<number> {
     return this.ticketRepository.deleteAll();
+  }
+
+  // --- métodos para notas ---
+  async addNoteToTicket(
+    id: string,
+    content: string,
+    type: TicketNote['type'] = 'general',
+    createdBy?: string,
+    createdByName?: string
+  ): Promise<TicketModel> {
+    const ticket = await this.getById(id);
+    if (!ticket) {
+      throw new NotFoundError(`Ticket with ID ${id} not found`);
+    }
+
+    const updatedTicket = addNoteToTicket(ticket, content, type, createdBy, createdByName);
+    return this.ticketRepository.update(id, {
+      notes: updatedTicket.notes,
+      updatedAt: updatedTicket.updatedAt,
+    });
+  }
+
+  async getTicketNotes(id: string): Promise<TicketNote[]> {
+    const ticket = await this.getById(id);
+    if (!ticket) {
+      throw new NotFoundError(`Ticket with ID ${id} not found`);
+    }
+    // Asegurar compatibilidad con tickets existentes que no tengan notes
+    return Array.isArray(ticket.notes) ? ticket.notes : [];
   }
 }
