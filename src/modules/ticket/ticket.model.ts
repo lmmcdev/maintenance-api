@@ -20,7 +20,7 @@ export interface TicketModel extends BaseDocument {
   priority: TicketPriority; // "LOW" | "MEDIUM" | "HIGH"
 
   // clasificación simple
-  category: TicketCategory; // "PREVENTIVE" | "CORRECTIVE" | "EMERGENCY" | "DEFERRED"
+  category: TicketCategory | null; // "PREVENTIVE" | "CORRECTIVE" | "EMERGENCY" | "DEFERRED"
   subcategory: { name: SubcategoryName; displayName: string } | null;
 
   // asignación
@@ -49,23 +49,27 @@ export function createNewTicket(
   // Supported formats:
   // - "Name, (phone)" e.g., "TAPIA SALVADON, (786) 651-6455"
   // - "Name (phone)" e.g., "WIRELESS CALLER (305) 879-5229"
+  // - "Name (phone)" e.g., "Pita Sanchez Pa (305) 244-4475"
   // - "phone name phone" e.g., "5638 Esteban Ulloa 5638"
   // - "phone name" e.g., "1234 John Doe"
 
   let phoneNumber: string | undefined;
   let fullName = fromText.trim();
 
-  // Check for "Name, (phone)" or "Name (phone)" format
-  const phoneMatch = fromText.match(/^(.+?),?\s*\(([0-9\s\-\+]+)\)$/);
+  // Check for phone number in format "(XXX) XXX-XXXX" at the end
+  // This regex handles: "Name (305) 244-4475" or "Name, (786) 651-6455"
+  const phoneMatch = fromText.match(/^(.+?),?\s*\((\d{3})\)\s*([\d\-]+)$/);
   if (phoneMatch) {
     fullName = phoneMatch[1].trim();
     // Remove trailing comma if present
     if (fullName.endsWith(',')) {
       fullName = fullName.slice(0, -1).trim();
     }
-    // Extract just the digits from the phone number
-    phoneNumber = phoneMatch[2].replace(/\D/g, '');
-    
+    // Combine area code with rest of number, removing non-digits
+    const areaCode = phoneMatch[2];
+    const restOfPhone = phoneMatch[3].replace(/\D/g, '');
+    phoneNumber = areaCode + restOfPhone;
+
     // Capitalize full name properly
     fullName = fullName
       .toLowerCase()
@@ -119,7 +123,7 @@ export function createNewTicket(
     status: TicketStatus.NEW,
     priority: opts?.priority ?? TicketPriority.MEDIUM,
 
-    category: opts?.category ?? TicketCategory.CORRECTIVE,
+    category: opts?.category ?? null,
     subcategory: opts?.subcategory
       ? {
           name: opts.subcategory.name,

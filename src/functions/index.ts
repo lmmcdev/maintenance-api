@@ -1,5 +1,6 @@
 // health - route
 import './v1/app-health.route';
+import './v1/app-health-public.route';
 
 // tickets - route
 import '../modules/ticket/routes/ticket-create.route';
@@ -27,3 +28,11 @@ import '../modules/category/routes/subcategory-add.route';
 import '../modules/category/routes/subcategory-update.route';
 import '../modules/category/routes/subcategory-delete.route';
 import '../modules/category/routes/category-seed.route';
+
+// auth routes
+import '../modules/auth/routes/auth-login.route';
+import '../modules/auth/routes/auth-callback.route';
+import '../modules/auth/routes/auth-refresh.route';
+import '../modules/auth/routes/auth-validate.route';
+import '../modules/auth/routes/auth-logout.route';
+import '../modules/auth/routes/auth-me.route';

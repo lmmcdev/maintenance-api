@@ -14,4 +14,12 @@ export const env = {
     personContainer: process.env.COSMOS_PERSON_CONTAINER ?? 'persons',
     categoryContainer: process.env.COSMOS_CATEGORY_CONTAINER ?? 'categories',
   },
+  azureAd: {
+    tenantId: process.env.AZURE_AD_TENANT_ID,
+    clientId: process.env.AZURE_AD_CLIENT_ID,
+    clientSecret: process.env.AZURE_AD_CLIENT_SECRET,
+    scopes: process.env.AZURE_AD_SCOPES ?? 'User.Read',
+    redirectUri: process.env.AZURE_AD_REDIRECT_URI,
+    postLogoutRedirectUri: process.env.AZURE_AD_POST_LOGOUT_REDIRECT_URI,
+  },
 };

@@ -1,10 +1,9 @@
-// src/modules/health/health.route.ts
+// src/modules/health/health-public.route.ts
 import { app, HttpRequest, HttpResponseInit, InvocationContext } from '@azure/functions';
 import { promises as fs } from 'fs';
 import path from 'path';
 
 import { withHttp, ok } from '../../shared';
-import { requireAuth, AuthenticatedRequest } from '../../modules/auth/auth.middleware';
 
 type BuildInfo = {
   appName?: string;
@@ -28,16 +27,9 @@ async function readBuildInfo(): Promise<BuildInfo | null> {
   }
 }
 
-const handler = requireAuth(
-  async (req: AuthenticatedRequest, ctx: InvocationContext): Promise<HttpResponseInit> => {
-    // Ahora usamos el usuario autenticado desde Azure AD
-    const user = req.user;
-    
-    if (!user) {
-      return { status: 401, jsonBody: { message: 'User not authenticated' } };
-    }
-
-    ctx.log(`Health check requested by user ${user.email} (${user.id})`);
+const handler = withHttp(
+  async (req: HttpRequest, ctx: InvocationContext): Promise<HttpResponseInit> => {
+    ctx.log('Public health check requested');
 
     const bi = await readBuildInfo();
 
@@ -69,20 +61,14 @@ const handler = requireAuth(
       instance: process.env.WEBSITE_INSTANCE_ID,
       region: process.env.REGION_NAME || process.env.WEBSITE_HOME_STAMPNAME,
       build: bi ?? fallback,
-      // Incluimos información del usuario autenticado
-      user: {
-        id: user.id,
-        email: user.email,
-        name: user.name,
-        roles: user.roles,
-      },
+      public: true,
     });
   },
 );
 
-app.http('app-health', {
+app.http('app-health-public', {
   methods: ['GET'],
   authLevel: 'anonymous',
-  route: 'v1/health', // => /api/v1/health
+  route: 'v1/health/public', // => /api/v1/health/public
   handler,
 });
