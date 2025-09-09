@@ -1,9 +1,16 @@
 import { app, HttpRequest, HttpResponseInit, InvocationContext } from '@azure/functions';
+import { z } from 'zod';
 
 import { TicketService } from '../ticket.service';
 import { TicketRepository } from '../ticket.repository';
 import { withHttp, ok, fail } from '../../../shared';
 import { HTTP_STATUS } from '../../../shared/status-code';
+
+const cancelSchema = z.object({
+  reason: z.string().optional(),
+  cancelledBy: z.string().optional(),
+  cancelledByName: z.string().optional(),
+}).optional();
 
 const cancelTicketHandler = withHttp(
   async (req: HttpRequest, ctx: InvocationContext): Promise<HttpResponseInit> => {
@@ -22,6 +29,18 @@ const cancelTicketHandler = withHttp(
     }
 
     try {
+      // Parse optional request body for cancellation details
+      let cancelData: z.infer<typeof cancelSchema> = {};
+      try {
+        const body = await req.json();
+        if (body) {
+          cancelData = cancelSchema.parse(body);
+        }
+      } catch {
+        // Si no hay body o no es válido, usar valores por defecto
+        cancelData = {};
+      }
+
       // Get the ticket first to check if it exists
       const ticket = await service.getById(id);
       
@@ -44,15 +63,21 @@ const cancelTicketHandler = withHttp(
         );
       }
 
-      // Cancel the ticket using the service method
-      const updatedTicket = await service.cancelTicket(id);
+      // Cancel the ticket with optional reason
+      const updatedTicket = await service.cancelTicket(
+        id,
+        cancelData?.reason,
+        cancelData?.cancelledBy,
+        cancelData?.cancelledByName
+      );
 
-      ctx.info(`Ticket ${id} cancelled successfully`);
+      ctx.info(`Ticket ${id} cancelled successfully${cancelData?.reason ? ' with reason: ' + cancelData.reason : ''}`);
       
       return ok(ctx, {
         id: updatedTicket.id,
         status: updatedTicket.status,
         closedAt: updatedTicket.closedAt,
+        notes: updatedTicket.notes || [],
         message: 'Ticket cancelled successfully'
       });
     } catch (error: any) {

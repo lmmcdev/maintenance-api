@@ -5,11 +5,23 @@ import type { AttachmentRef } from '../attachment/attachment.dto';
 import type { PersonModel } from '../person/person.model';
 import { TicketCategory, SubcategoryName } from './taxonomy.simple';
 
+export interface TicketNote {
+  id: string;
+  content: string;
+  type: 'general' | 'cancellation' | 'status_change' | 'assignment' | 'resolution';
+  createdAt: string;
+  createdBy?: string; // ID del usuario que creó la nota
+  createdByName?: string; // Nombre del usuario para referencia
+}
+
 export interface TicketModel extends BaseDocument {
   id: string;
   title: string;
   phoneNumber?: string;
   description: string;
+
+  // notas y observaciones (opcional para compatibilidad con tickets existentes)
+  notes?: TicketNote[];
 
   // media
   audio: AttachmentRef;
@@ -117,6 +129,9 @@ export function createNewTicket(
     phoneNumber,
     description,
 
+    // inicializar array de notas vacío
+    notes: [],
+
     audio,
     attachments: [],
 
@@ -136,5 +151,38 @@ export function createNewTicket(
 
     resolvedAt: null,
     closedAt: null,
+  };
+}
+
+export function createTicketNote(
+  content: string,
+  type: TicketNote['type'] = 'general',
+  createdBy?: string,
+  createdByName?: string
+): TicketNote {
+  return {
+    id: crypto.randomUUID(),
+    content,
+    type,
+    createdAt: new Date().toISOString(),
+    createdBy,
+    createdByName,
+  };
+}
+
+export function addNoteToTicket(
+  ticket: TicketModel,
+  content: string,
+  type: TicketNote['type'] = 'general',
+  createdBy?: string,
+  createdByName?: string
+): TicketModel {
+  const note = createTicketNote(content, type, createdBy, createdByName);
+  // Asegurar que notes existe como array, para compatibilidad con tickets existentes
+  const existingNotes = Array.isArray(ticket.notes) ? ticket.notes : [];
+  return {
+    ...ticket,
+    notes: [...existingNotes, note],
+    updatedAt: new Date().toISOString(),
   };
 }

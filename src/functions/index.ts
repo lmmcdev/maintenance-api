@@ -11,6 +11,9 @@ import '../modules/ticket/routes/ticket-list.route';
 import '../modules/ticket/routes/ticket-status.route';
 import '../modules/ticket/routes/ticket-delete.route';
 import '../modules/ticket/routes/ticket-cancel.route';
+import '../modules/ticket/routes/ticket-notes-add.route';
+import '../modules/ticket/routes/ticket-notes-get.route';
+import '../modules/ticket/routes/ticket-migrate-notes.route';
 
 // persons - route
 import '../modules/person/routes/person-create.route';
