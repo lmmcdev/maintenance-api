@@ -168,7 +168,8 @@ export interface TicketModel extends BaseDocument {
   status: TicketStatus;
   priority: TicketPriority;
 
-  category: TicketCategory;
+  // clasificación simple
+  category: TicketCategory | null; // "PREVENTIVE" | "CORRECTIVE" | "EMERGENCY" | "DEFERRED"
   subcategory: { name: SubcategoryName; displayName: string } | null;
 
   assigneeIds: string[] | null;
@@ -209,16 +210,19 @@ export function createNewTicket(
   let phoneNumber: string | undefined;
   let fullName = fromText.trim();
 
-  // Check for "Name, (phone)" or "Name (phone)" format
-  const phoneMatch = fromText.match(/^(.+?),?\s*\(([0-9\s\-\+]+)\)$/);
+  // Check for phone number in format "(XXX) XXX-XXXX" at the end
+  // This regex handles: "Name (305) 244-4475" or "Name, (786) 651-6455"
+  const phoneMatch = fromText.match(/^(.+?),?\s*\((\d{3})\)\s*([\d\-]+)$/);
   if (phoneMatch) {
     fullName = phoneMatch[1].trim();
     // Remove trailing comma if present
     if (fullName.endsWith(',')) {
       fullName = fullName.slice(0, -1).trim();
     }
-    // Extract just the digits from the phone number
-    phoneNumber = phoneMatch[2].replace(/\D/g, '');
+    // Combine area code with rest of number, removing non-digits
+    const areaCode = phoneMatch[2];
+    const restOfPhone = phoneMatch[3].replace(/\D/g, '');
+    phoneNumber = areaCode + restOfPhone;
 
     // Capitalize full name properly
     fullName = fullName
@@ -324,7 +328,7 @@ export function createNewTicket(
     status: TicketStatus.NEW,
     priority: opts?.priority ?? TicketPriority.MEDIUM,
 
-    category: opts?.category ?? TicketCategory.CORRECTIVE,
+    category: opts?.category ?? null,
     subcategory: opts?.subcategory
       ? {
           name: opts.subcategory.name,
