@@ -5,6 +5,7 @@ import { TicketRepository } from '../ticket.repository';
 import { withHttp, parseJson, created } from '../../../shared';
 import { CreateTicketDto } from '../dtos/ticket-create.dto';
 import { createNewTicket, TicketModel } from '../ticket.model';
+import { AttachmentRef } from '../../attachment/attachment.dto';
 import { TicketRoutes } from './index';
 
 const createTicketHandler = withHttp(
@@ -15,18 +16,34 @@ const createTicketHandler = withHttp(
       audio = null,
       description,
       fromText,
-      attachments,
+      attachmentsString,
       reporter,
       source,
     } = await parseJson(req, CreateTicketDto);
 
+    // Parse attachments from JSON string
+    let attachments: AttachmentRef[] = [];
+    if (attachmentsString) {
+      try {
+        const parsed = JSON.parse(attachmentsString);
+        if (Array.isArray(parsed)) {
+          attachments = parsed;
+        }
+      } catch (error) {
+        ctx.warn('Failed to parse attachmentsString:', error);
+        attachments = [];
+      }
+    }
+
     // Convert null values to undefined for PersonModel compatibility
-    const cleanReporter = reporter ? {
-      firstName: reporter.firstName ?? undefined,
-      lastName: reporter.lastName ?? undefined,
-      phoneNumber: reporter.phoneNumber ?? undefined,
-      email: reporter.email ?? undefined,
-    } : undefined;
+    const cleanReporter = reporter
+      ? {
+          firstName: reporter.firstName ?? undefined,
+          lastName: reporter.lastName ?? undefined,
+          phoneNumber: reporter.phoneNumber ?? undefined,
+          email: reporter.email ?? undefined,
+        }
+      : undefined;
 
     const dto: TicketModel = createNewTicket(
       audio,
