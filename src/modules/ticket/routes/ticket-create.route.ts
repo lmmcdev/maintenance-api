@@ -13,13 +13,27 @@ const createTicketHandler = withHttp(
     const service = new TicketService(new TicketRepository());
     await service.init();
     const {
-      audio = null,
+      audioString,
       description,
       fromText,
       attachmentsString,
       reporter,
       source,
     } = await parseJson(req, CreateTicketDto);
+
+    // Parse audio from JSON string
+    let audio: AttachmentRef | null = null;
+    if (audioString) {
+      try {
+        const parsed = JSON.parse(audioString);
+        if (parsed && typeof parsed === 'object') {
+          audio = parsed;
+        }
+      } catch (error) {
+        ctx.warn('Failed to parse audioString:', error);
+        audio = null;
+      }
+    }
 
     // Parse attachments from JSON string
     let attachments: AttachmentRef[] = [];
