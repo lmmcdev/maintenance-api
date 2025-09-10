@@ -11,7 +11,6 @@ export enum TicketSource {
   RINGCENTRAL = 'RINGCENTRAL',
   EMAIL = 'EMAIL',
   WEB = 'WEB',
-  PHONE = 'PHONE',
   OTHER = 'OTHER',
 }
 
@@ -207,13 +206,6 @@ export function createNewTicket(
 ): TicketModel {
   const now = new Date().toISOString();
 
-  // Parse fromText to extract phone and name
-  // Supported formats:
-  // - "Name, (phone)" e.g., "TAPIA SALVADON, (786) 651-6455"
-  // - "Name (phone)" e.g., "WIRELESS CALLER (305) 879-5229"
-  // - "phone name phone" e.g., "5638 Esteban Ulloa 5638"
-  // - "phone name" e.g., "1234 John Doe"
-
   let phoneNumber: string | undefined;
   let fullName = fromText.trim();
 
@@ -309,6 +301,13 @@ export function createNewTicket(
   // Use provided values if available, otherwise use found values
   const finalReporter = opts?.reporter || assignedReporter || undefined;
   const finalLocation = opts?.location || assignedLocation || undefined;
+
+  if (finalReporter) {
+    fullName = `${finalReporter.firstName} ${finalReporter.lastName}`;
+    if (finalReporter.phoneNumber) {
+      phoneNumber = finalReporter.phoneNumber;
+    }
+  }
 
   return {
     id: crypto.randomUUID(),
