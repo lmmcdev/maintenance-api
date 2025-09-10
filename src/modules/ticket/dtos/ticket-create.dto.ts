@@ -1,5 +1,4 @@
 import { z } from 'zod';
-import { AttachmentRefSchema } from '../../attachment/attachment.dto';
 import { PersonCreateDto } from '../../person/dtos/person-create.dto';
 import { TicketStatus, TicketPriority, PhoneSchema } from '../../../shared';
 import { TicketCategory, SimpleSubcategorySchema } from '../taxonomy.simple';
@@ -10,7 +9,7 @@ export const CreateTicketDto = z
     title: z.string().min(1).optional().nullable(),
     fromText: z.string().min(1).max(100).optional().nullable(),
     description: z.string().min(1).max(1000),
-    audio: AttachmentRefSchema.optional().nullable(),
+    audioString: z.string().optional().nullable(),
     reporter: z
       .object({
         firstName: z.string().min(1).max(100).optional().nullable(),
