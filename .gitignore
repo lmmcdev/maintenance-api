@@ -52,3 +52,9 @@ __azurite_db*__.json
 
 # mocks
 /mocks
+
+
+# .env file
+.env
+.env.local
+.env.*.local    

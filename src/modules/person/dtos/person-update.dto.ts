@@ -1,6 +1,6 @@
 // src/modules/person/dtos/person-update.dto.ts
 import { z } from 'zod';
-import { PersonRoleSchema } from './person-create.dto'; // reutilizamos el enum
+import { PersonRoleSchema, DepartmentSchema } from './person-create.dto'; // reutilizamos el enum
 import { PhoneSchema } from '../../../shared';
 
 const NameSchema = z
@@ -22,6 +22,8 @@ export const PersonUpdateDto = z
       .transform((s) => s.toLowerCase())
       .optional(),
     role: PersonRoleSchema.optional(),
+    department: DepartmentSchema.optional(),
+    locationId: z.string().optional(),
   })
   .strict()
   .refine((v) => Object.values(v).some((x) => x !== undefined), {

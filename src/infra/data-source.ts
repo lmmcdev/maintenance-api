@@ -1,5 +1,5 @@
 // src/infra/data-source.ts
-import { CosmosClient, Database, Container } from '@azure/cosmos';
+import { CosmosClient, Database, Container, PartitionKeyKind } from '@azure/cosmos';
 import { env } from '../config/env';
 
 let client: CosmosClient | null = null;
@@ -39,7 +39,10 @@ export async function getContainer(init: ContainerInit): Promise<Container> {
   const db = await getDb();
   const { container } = await db.containers.createIfNotExists({
     id,
-    partitionKey: { paths: [partitionKeyPath] },
+    partitionKey: { 
+      paths: [partitionKeyPath],
+      kind: PartitionKeyKind.Hash
+    },
   });
   console.log('[cosmos] init', {
     db: env.cosmosDB.databaseName,

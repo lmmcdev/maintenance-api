@@ -1,3 +1,8 @@
+import dotenv from 'dotenv';
+
+dotenv.config();
+
+// Configuración de entorno (variables de entorno)
 export const env = {
   api: {
     version: process.env.API_VERSION ?? 'v1',

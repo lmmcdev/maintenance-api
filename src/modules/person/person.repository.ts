@@ -60,4 +60,34 @@ export class PersonRepository extends CosmosRepository<PersonModel> {
     const { items } = await super.list(q, 1, limit);
     return items;
   }
+
+  /** Busca personas por departamento. */
+  async findByDepartment(department: string): Promise<PersonModel[]> {
+    const q: SqlQuerySpec = {
+      query: 'SELECT * FROM c WHERE c.department = @department',
+      parameters: [{ name: '@department', value: department }],
+    };
+    const { items } = await super.list(q, 1, 100);
+    return items;
+  }
+
+  /** Busca personas por locationId. */
+  async findByLocationId(locationId: string): Promise<PersonModel[]> {
+    const q: SqlQuerySpec = {
+      query: 'SELECT * FROM c WHERE c.locationId = @locationId',
+      parameters: [{ name: '@locationId', value: locationId }],
+    };
+    const { items } = await super.list(q, 1, 100);
+    return items;
+  }
+
+  /** Busca una persona por número de teléfono. */
+  async findByPhoneNumber(phoneNumber: string): Promise<PersonModel | null> {
+    const q: SqlQuerySpec = {
+      query: 'SELECT * FROM c WHERE c.phoneNumber = @phoneNumber',
+      parameters: [{ name: '@phoneNumber', value: phoneNumber }],
+    };
+    const { items } = await super.list(q, 1, 1);
+    return items[0] ?? null;
+  }
 }

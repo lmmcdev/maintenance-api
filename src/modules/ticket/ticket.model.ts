@@ -3,7 +3,159 @@ import type { BaseDocument } from '../../infra/cosmos.repository';
 import { TicketStatus, TicketPriority } from '../../shared';
 import type { AttachmentRef } from '../attachment/attachment.dto';
 import type { PersonModel } from '../person/person.model';
+import { Department } from '../person/person.model';
+import type { LocationRef } from '../location/location.model';
 import { TicketCategory, SubcategoryName } from './taxonomy.simple';
+
+export enum TicketSource {
+  RINGCENTRAL = 'RINGCENTRAL',
+  EMAIL = 'EMAIL',
+  WEB = 'WEB',
+  PHONE = 'PHONE',
+  OTHER = 'OTHER',
+}
+
+// Simple location mock for testing
+const LOCATION_MOCK: LocationRef[] = [
+  {
+    id: 'loc-001',
+    name: 'Edificio Central',
+    phoneNumbers: ['7866516455', '7865551234', '7865555678'],
+    address: '123 Main Street',
+    city: 'Miami',
+    state: 'FL',
+    zip: '33101',
+    country: 'USA',
+  },
+  {
+    id: 'loc-002',
+    name: 'Oficina Norte',
+    phoneNumbers: ['3058795229', '3055551111'],
+    address: '456 North Ave',
+    city: 'Miami',
+    state: 'FL',
+    zip: '33102',
+    country: 'USA',
+  },
+  {
+    id: 'loc-003',
+    name: 'Sucursal Sur',
+    phoneNumbers: ['5638', '1234'],
+    address: '789 South Blvd',
+    city: 'Miami',
+    state: 'FL',
+    zip: '33103',
+    country: 'USA',
+  },
+  {
+    id: 'loc-004',
+    name: 'Centro de Mantenimiento',
+    phoneNumbers: ['3055559999', '3055558888'],
+    address: '321 Service Road',
+    city: 'Miami',
+    state: 'FL',
+    zip: '33104',
+    country: 'USA',
+  },
+];
+
+// Function to find location by phone number
+function findLocationByPhone(phoneNumber: string): LocationRef | null {
+  const cleanedPhoneNumber = phoneNumber.replace(/\D/g, '');
+  return (
+    LOCATION_MOCK.find(
+      (loc) => loc.phoneNumbers && loc.phoneNumbers.includes(cleanedPhoneNumber),
+    ) || null
+  );
+}
+
+// Function to find location by email domain (simple mock)
+function findLocationByEmail(email: string): LocationRef | null {
+  // Simple mock: assign location based on email domain
+  if (email.includes('@central.com')) return LOCATION_MOCK[0];
+  if (email.includes('@norte.com')) return LOCATION_MOCK[1];
+  if (email.includes('@sur.com')) return LOCATION_MOCK[2];
+  return null;
+}
+
+// Simple person mock for testing
+const PERSON_MOCK: PersonModel[] = [
+  // Maintenance Brigade Personnel
+  {
+    id: 'person-001',
+    createdAt: '2024-01-01T00:00:00.000Z',
+    updatedAt: '2024-01-01T00:00:00.000Z',
+    firstName: 'Juan',
+    lastName: 'Rodriguez',
+    phoneNumber: '7866516455',
+    email: 'juan.rodriguez@maintenance.com',
+    role: 'TECHNICIAN' as any,
+    department: Department.MAINTENANCE,
+  },
+  {
+    id: 'person-002',
+    createdAt: '2024-01-01T00:00:00.000Z',
+    updatedAt: '2024-01-01T00:00:00.000Z',
+    firstName: 'Maria',
+    lastName: 'Gonzalez',
+    phoneNumber: '3058795229',
+    email: 'maria.gonzalez@maintenance.com',
+    role: 'SUPERVISOR' as any,
+    department: Department.MAINTENANCE,
+  },
+  // Location Personnel
+  {
+    id: 'person-003',
+    createdAt: '2024-01-01T00:00:00.000Z',
+    updatedAt: '2024-01-01T00:00:00.000Z',
+    firstName: 'Carlos',
+    lastName: 'Martinez',
+    phoneNumber: '5638',
+    email: 'carlos@central.com',
+    role: 'SUPERVISOR' as any,
+    department: Department.LOCATION,
+    locationId: 'loc-001',
+  },
+  {
+    id: 'person-004',
+    createdAt: '2024-01-01T00:00:00.000Z',
+    updatedAt: '2024-01-01T00:00:00.000Z',
+    firstName: 'Ana',
+    lastName: 'Lopez',
+    phoneNumber: '1234',
+    email: 'ana@norte.com',
+    role: 'TECHNICIAN' as any,
+    department: Department.LOCATION,
+    locationId: 'loc-002',
+  },
+];
+
+// Function to find maintenance brigade personnel by phone
+function findBrigadePersonByPhone(phoneNumber: string): PersonModel | null {
+  const cleanedPhoneNumber = phoneNumber.replace(/\D/g, '');
+  return (
+    PERSON_MOCK.find(
+      (person) =>
+        person.department === Department.MAINTENANCE && person.phoneNumber === cleanedPhoneNumber,
+    ) || null
+  );
+}
+
+// Function to find location personnel by phone
+function findLocationPersonByPhone(phoneNumber: string): PersonModel | null {
+  const cleanedPhoneNumber = phoneNumber.replace(/\D/g, '');
+  return (
+    PERSON_MOCK.find(
+      (person) =>
+        person.department === Department.LOCATION && person.phoneNumber === cleanedPhoneNumber,
+    ) || null
+  );
+}
+
+// Function to find person by email (any department)
+function findPersonByEmail(email: string): PersonModel | null {
+  return PERSON_MOCK.find((person) => person.email === email) || null;
+}
 
 export interface TicketModel extends BaseDocument {
   id: string;
@@ -11,36 +163,46 @@ export interface TicketModel extends BaseDocument {
   phoneNumber?: string;
   description: string;
 
-  // media
-  audio: AttachmentRef;
+  audio?: AttachmentRef | null;
   attachments: AttachmentRef[];
 
-  // estado/prioridad (3 estados)
-  status: TicketStatus; // "NEW" | "OPEN" | "DONE"
-  priority: TicketPriority; // "LOW" | "MEDIUM" | "HIGH"
+  status: TicketStatus;
+  priority: TicketPriority;
 
-  // clasificación simple
-  category: TicketCategory; // "PREVENTIVE" | "CORRECTIVE" | "EMERGENCY" | "DEFERRED"
+  category: TicketCategory;
   subcategory: { name: SubcategoryName; displayName: string } | null;
 
-  // asignación
   assigneeIds: string[] | null;
   assignees: PersonModel[] | null;
 
-  // marcas de tiempo derivadas
+  reporterId?: string;
+  reporter?: PersonModel;
+
+  locationId?: string;
+  location?: LocationRef;
+
+  source: TicketSource;
+
   resolvedAt: string | null;
   closedAt: string | null;
 }
 
 export function createNewTicket(
-  audio: AttachmentRef,
+  audio: AttachmentRef | null,
   description: string,
   fromText: string,
+  reporter?: Partial<PersonModel>,
+  source: TicketSource = TicketSource.OTHER,
+  attachments: AttachmentRef[] = [],
   opts?: {
     title?: string;
     category?: TicketCategory;
     subcategory?: { name: SubcategoryName; displayName?: string };
     priority?: TicketPriority;
+    reporterId?: string;
+    reporter?: PersonModel;
+    locationId?: string;
+    location?: LocationRef;
   },
 ): TicketModel {
   const now = new Date().toISOString();
@@ -65,7 +227,7 @@ export function createNewTicket(
     }
     // Extract just the digits from the phone number
     phoneNumber = phoneMatch[2].replace(/\D/g, '');
-    
+
     // Capitalize full name properly
     fullName = fullName
       .toLowerCase()
@@ -76,7 +238,7 @@ export function createNewTicket(
     // Try other formats with space-separated parts
     const parts = fromText.trim().split(/\s+/);
 
-    if (parts.length >= 3) {
+    if (parts && parts.length >= 3) {
       // Check if first and last parts are the same (likely phone number)
       const firstPart = parts[0];
       const lastPart = parts[parts.length - 1];
@@ -90,31 +252,75 @@ export function createNewTicket(
         phoneNumber = firstPart;
         fullName = parts.slice(1).join(' ');
       }
-    } else if (parts.length > 0 && /^\d+$/.test(parts[0])) {
+    } else if (parts && parts.length > 0 && /^\d+$/.test(parts[0])) {
       // First part is phone number
       phoneNumber = parts[0];
       fullName = parts.slice(1).join(' ') || 'Unknown';
     }
 
     // Capitalize full name properly
-    fullName = fullName
-      .toLowerCase()
-      .split(' ')
-      .map((n) => n.charAt(0).toUpperCase() + n.slice(1))
-      .join(' ');
+    if (fullName) {
+      fullName = fullName
+        .toLowerCase()
+        .split(' ')
+        .map((n) => n.charAt(0).toUpperCase() + n.slice(1))
+        .join(' ');
+    }
   }
+
+  // Auto-assign reporter and location based on phone number or email
+  let assignedReporter: PersonModel | null = null;
+  let assignedLocation: LocationRef | null = null;
+
+  // First try to find person by phone number
+  if (phoneNumber) {
+    // Check both brigade and location personnel
+    assignedReporter =
+      findBrigadePersonByPhone(phoneNumber) || findLocationPersonByPhone(phoneNumber);
+
+    // If person is from a location, get their location
+    if (assignedReporter?.department === Department.LOCATION && assignedReporter.locationId) {
+      assignedLocation =
+        LOCATION_MOCK.find((loc) => loc.id === assignedReporter!.locationId) || null;
+    }
+
+    // If no person found, try to find location directly by phone
+    if (!assignedReporter) {
+      assignedLocation = findLocationByPhone(phoneNumber);
+    }
+  }
+
+  // If no reporter found by phone and email is provided, try email
+  if (!assignedReporter && reporter?.email) {
+    assignedReporter = findPersonByEmail(reporter.email);
+
+    // If person is from a location, get their location
+    if (assignedReporter?.department === Department.LOCATION && assignedReporter.locationId) {
+      assignedLocation =
+        LOCATION_MOCK.find((loc) => loc.id === assignedReporter!.locationId) || null;
+    }
+  }
+
+  // If still no location and email provided, try location by email domain
+  if (!assignedLocation && reporter?.email) {
+    assignedLocation = findLocationByEmail(reporter.email);
+  }
+
+  // Use provided values if available, otherwise use found values
+  const finalReporter = opts?.reporter || assignedReporter || undefined;
+  const finalLocation = opts?.location || assignedLocation || undefined;
 
   return {
     id: crypto.randomUUID(),
     createdAt: now,
     updatedAt: now,
 
-    title: fullName,
+    title: fullName || 'Unknown',
     phoneNumber,
     description,
 
-    audio,
-    attachments: [],
+    audio: audio || null,
+    attachments,
 
     status: TicketStatus.NEW,
     priority: opts?.priority ?? TicketPriority.MEDIUM,
@@ -129,6 +335,14 @@ export function createNewTicket(
 
     assigneeIds: [],
     assignees: [],
+
+    reporterId: opts?.reporterId || finalReporter?.id,
+    reporter: finalReporter,
+
+    locationId: opts?.locationId || finalLocation?.id,
+    location: finalLocation,
+
+    source,
 
     resolvedAt: null,
     closedAt: null,

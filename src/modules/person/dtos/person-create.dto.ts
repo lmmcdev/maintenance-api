@@ -1,6 +1,7 @@
 // src/modules/person/dtos/person-create.dto.ts
 import { z } from 'zod';
 import { PersonRole, PhoneSchema } from '../../../shared';
+import { Department } from '../person.model';
 
 const NameSchema = z
   .string()
@@ -10,6 +11,7 @@ const NameSchema = z
   .transform((s) => s.replace(/\s+/g, ' '));
 
 export const PersonRoleSchema = z.enum(PersonRole);
+export const DepartmentSchema = z.nativeEnum(Department);
 
 export const PersonCreateDto = z
   .object({
@@ -23,6 +25,8 @@ export const PersonCreateDto = z
       .transform((s) => s.toLowerCase())
       .optional(),
     role: PersonRoleSchema.default(PersonRole.TECHNICIAN),
+    department: DepartmentSchema.optional(),
+    locationId: z.string().optional(),
   })
   .strict();
 

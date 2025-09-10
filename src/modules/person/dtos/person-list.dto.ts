@@ -1,6 +1,6 @@
 // src/modules/person/dtos/person-list.dto.ts
 import { z } from 'zod';
-import { PersonRoleSchema } from './person-create.dto';
+import { PersonRoleSchema, DepartmentSchema } from './person-create.dto';
 import { PhoneSchema } from '../../../shared';
 
 // Fecha en DD-MM-YYYY → Date
@@ -19,6 +19,8 @@ export const PersonListQueryDto = z
     // Filtros
     q: z.string().trim().optional(),
     role: PersonRoleSchema.optional(),
+    department: DepartmentSchema.optional(),
+    locationId: z.string().optional(),
     email: z.email().trim().toLowerCase().optional(),
     phoneNumber: PhoneSchema.optional(),
 

@@ -11,9 +11,31 @@ const createTicketHandler = withHttp(
   async (req: HttpRequest, ctx: InvocationContext): Promise<HttpResponseInit> => {
     const service = new TicketService(new TicketRepository());
     await service.init();
-    const { audio, description, fromText } = await parseJson(req, CreateTicketDto);
+    const {
+      audio = null,
+      description,
+      fromText,
+      attachments,
+      reporter,
+      source,
+    } = await parseJson(req, CreateTicketDto);
 
-    const dto: TicketModel = createNewTicket(audio, description, fromText ?? 'Unknown');
+    // Convert null values to undefined for PersonModel compatibility
+    const cleanReporter = reporter ? {
+      firstName: reporter.firstName ?? undefined,
+      lastName: reporter.lastName ?? undefined,
+      phoneNumber: reporter.phoneNumber ?? undefined,
+      email: reporter.email ?? undefined,
+    } : undefined;
+
+    const dto: TicketModel = createNewTicket(
+      audio,
+      description,
+      fromText ?? 'Unknown',
+      cleanReporter,
+      source,
+      attachments,
+    );
     const data = await service.createTicket(dto);
     ctx.info('Ticket created with ID:', data.id);
     return created(ctx, data);
