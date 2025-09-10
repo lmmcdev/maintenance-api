@@ -26,7 +26,7 @@ export const CreateTicketDto = z
     category: z.enum(TicketCategory).optional(),
     subcategory: SimpleSubcategorySchema.optional().nullable(),
 
-    attachments: z.array(AttachmentRefSchema).optional().default([]),
+    attachmentsString: z.string().optional().nullable(),
 
     assigneeId: z.uuid().optional().nullable(),
     assignee: PersonCreateDto.optional().nullable(),
@@ -42,13 +42,8 @@ export const CreateTicketDto = z
     }
   })
   .transform((v) => {
-    const seen = new Set<string>();
-    const attachments = (v.attachments ?? []).filter((a) => {
-      if (seen.has(a.id)) return false;
-      seen.add(a.id);
-      return true;
-    });
-    return { ...v, attachments };
+    // Remove any transformation related to attachments since we're using attachmentsString
+    return v;
   });
 
 export type CreateTicketDto = z.infer<typeof CreateTicketDto>;
