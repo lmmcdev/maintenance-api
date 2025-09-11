@@ -16,10 +16,13 @@
     "@azure/functions": "^4.0.0",
     "dotenv": "^17.2.2",
     "http-status": "^2.1.0",
+    "jsonwebtoken": "^9.0.2",
+    "jwks-rsa": "^3.2.0",
     "uuid": "^11.1.0",
     "zod": "^4.1.4"
   },
   "devDependencies": {
+    "@types/jsonwebtoken": "^9.0.10",
     "@types/node": "^20.19.11",
     "azure-functions-core-tools": "^4.x",
     "rimraf": "^5.0.0",

@@ -4,6 +4,7 @@ export enum TicketStatus {
   NEW = 'NEW',
   OPEN = 'OPEN',
   DONE = 'DONE',
+  CANCELLED = 'CANCELLED',
 }
 
 export enum TicketPriority {

@@ -11,7 +11,6 @@ export enum TicketSource {
   RINGCENTRAL = 'RINGCENTRAL',
   EMAIL = 'EMAIL',
   WEB = 'WEB',
-  PHONE = 'PHONE',
   OTHER = 'OTHER',
 }
 
@@ -157,6 +156,15 @@ function findPersonByEmail(email: string): PersonModel | null {
   return PERSON_MOCK.find((person) => person.email === email) || null;
 }
 
+export interface TicketNote {
+  id: string;
+  content: string;
+  type: 'general' | 'cancellation' | 'status_change' | 'assignment' | 'resolution';
+  createdAt: string;
+  createdBy?: string; // ID del usuario que creó la nota
+  createdByName?: string; // Nombre del usuario para referencia
+}
+
 export interface TicketModel extends BaseDocument {
   id: string;
   title: string;
@@ -164,12 +172,16 @@ export interface TicketModel extends BaseDocument {
   description: string;
 
   audio?: AttachmentRef | null;
+  // notas y observaciones (opcional para compatibilidad con tickets existentes)
+  notes?: TicketNote[];
+
   attachments: AttachmentRef[];
 
   status: TicketStatus;
   priority: TicketPriority;
 
-  category: TicketCategory;
+  // clasificación simple
+  category: TicketCategory | null; // "PREVENTIVE" | "CORRECTIVE" | "EMERGENCY" | "DEFERRED"
   subcategory: { name: SubcategoryName; displayName: string } | null;
 
   assigneeIds: string[] | null;
@@ -207,26 +219,22 @@ export function createNewTicket(
 ): TicketModel {
   const now = new Date().toISOString();
 
-  // Parse fromText to extract phone and name
-  // Supported formats:
-  // - "Name, (phone)" e.g., "TAPIA SALVADON, (786) 651-6455"
-  // - "Name (phone)" e.g., "WIRELESS CALLER (305) 879-5229"
-  // - "phone name phone" e.g., "5638 Esteban Ulloa 5638"
-  // - "phone name" e.g., "1234 John Doe"
-
   let phoneNumber: string | undefined;
   let fullName = fromText.trim();
 
-  // Check for "Name, (phone)" or "Name (phone)" format
-  const phoneMatch = fromText.match(/^(.+?),?\s*\(([0-9\s\-\+]+)\)$/);
+  // Check for phone number in format "(XXX) XXX-XXXX" at the end
+  // This regex handles: "Name (305) 244-4475" or "Name, (786) 651-6455"
+  const phoneMatch = fromText.match(/^(.+?),?\s*\((\d{3})\)\s*([\d\-]+)$/);
   if (phoneMatch) {
     fullName = phoneMatch[1].trim();
     // Remove trailing comma if present
     if (fullName.endsWith(',')) {
       fullName = fullName.slice(0, -1).trim();
     }
-    // Extract just the digits from the phone number
-    phoneNumber = phoneMatch[2].replace(/\D/g, '');
+    // Combine area code with rest of number, removing non-digits
+    const areaCode = phoneMatch[2];
+    const restOfPhone = phoneMatch[3].replace(/\D/g, '');
+    phoneNumber = areaCode + restOfPhone;
 
     // Capitalize full name properly
     fullName = fullName
@@ -310,6 +318,13 @@ export function createNewTicket(
   const finalReporter = opts?.reporter || assignedReporter || undefined;
   const finalLocation = opts?.location || assignedLocation || undefined;
 
+  if (finalReporter) {
+    fullName = `${finalReporter.firstName} ${finalReporter.lastName}`;
+    if (finalReporter.phoneNumber) {
+      phoneNumber = finalReporter.phoneNumber;
+    }
+  }
+
   return {
     id: crypto.randomUUID(),
     createdAt: now,
@@ -319,13 +334,16 @@ export function createNewTicket(
     phoneNumber,
     description,
 
-    audio: audio || null,
-    attachments,
+    // inicializar array de notas vacío
+    notes: [],
+
+    audio,
+    attachments: [],
 
     status: TicketStatus.NEW,
     priority: opts?.priority ?? TicketPriority.MEDIUM,
 
-    category: opts?.category ?? TicketCategory.CORRECTIVE,
+    category: opts?.category ?? null,
     subcategory: opts?.subcategory
       ? {
           name: opts.subcategory.name,
@@ -346,5 +364,38 @@ export function createNewTicket(
 
     resolvedAt: null,
     closedAt: null,
+  };
+}
+
+export function createTicketNote(
+  content: string,
+  type: TicketNote['type'] = 'general',
+  createdBy?: string,
+  createdByName?: string,
+): TicketNote {
+  return {
+    id: crypto.randomUUID(),
+    content,
+    type,
+    createdAt: new Date().toISOString(),
+    createdBy,
+    createdByName,
+  };
+}
+
+export function addNoteToTicket(
+  ticket: TicketModel,
+  content: string,
+  type: TicketNote['type'] = 'general',
+  createdBy?: string,
+  createdByName?: string,
+): TicketModel {
+  const note = createTicketNote(content, type, createdBy, createdByName);
+
+  const existingNotes = Array.isArray(ticket.notes) ? ticket.notes : [];
+  return {
+    ...ticket,
+    notes: [...existingNotes, note],
+    updatedAt: new Date().toISOString(),
   };
 }
