@@ -12,6 +12,7 @@ const createTicketHandler = withHttp(
   async (req: HttpRequest, ctx: InvocationContext): Promise<HttpResponseInit> => {
     ctx.log('Creating ticket...');
     const body = await parseJson(req, CreateTicketDto);
+    ctx.log(`Parsed request body: ${JSON.stringify(body)}`);
 
     const { audioString, description, fromText, attachmentsString, reporter, source } = body;
 
