@@ -52,6 +52,23 @@ export async function parseQuery<T extends ZodTypeAny>(
   return result.data as any;
 }
 
+export function getBearerToken(req: HttpRequest): string | null {
+  const authHeader = req.headers.get('authorization');
+  if (!authHeader) return null;
+  
+  const bearerMatch = authHeader.match(/^Bearer\s+(.+)$/i);
+  return bearerMatch ? bearerMatch[1] : null;
+}
+
+export function getAuthToken(req: HttpRequest): string | null {
+  // Intenta obtener el token del header Authorization
+  const bearerToken = getBearerToken(req);
+  if (bearerToken) return bearerToken;
+  
+  // Si no hay Bearer token, intenta obtenerlo del header x-access-token
+  return req.headers.get('x-access-token') || null;
+}
+
 function searchParamsToObject(sp: URLSearchParams): Record<string, unknown> {
   const obj: Record<string, unknown> = {};
   for (const [k, v] of sp.entries()) {
