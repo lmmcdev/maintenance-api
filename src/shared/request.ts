@@ -9,7 +9,6 @@ export async function parseJson<T extends ZodTypeAny>(
   let body: unknown;
   try {
     body = await req.json();
-    console.log(`Raw request body: ${JSON.stringify(body)}`);
   } catch {
     throw new ValidationError('Invalid JSON body');
   }

@@ -338,7 +338,7 @@ export function createNewTicket(
     notes: [],
 
     audio,
-    attachments: [],
+    attachments,
 
     status: TicketStatus.NEW,
     priority: opts?.priority ?? TicketPriority.MEDIUM,
