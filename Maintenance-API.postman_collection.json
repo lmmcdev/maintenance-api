@@ -1,0 +1,438 @@
+{
+  "info": {
+    "name": "Maintenance API",
+    "description": "API for managing maintenance tickets, categories, and personnel",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "version": "1.0.0"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:7071",
+      "type": "string"
+    },
+    {
+      "key": "apiVersion",
+      "value": "v1",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "Tickets",
+      "item": [
+        {
+          "name": "Create Ticket",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Fix broken equipment\",\n  \"description\": \"The equipment in room 101 is not working properly\",\n  \"fromText\": \"Room 101\",\n  \"priority\": \"MEDIUM\",\n  \"status\": \"OPEN\",\n  \"category\": \"CORRECTIVE\",\n  \"source\": \"EMAIL\",\n  \"reporter\": {\n    \"firstName\": \"John\",\n    \"lastName\": \"Doe\",\n    \"email\": \"john.doe@company.com\",\n    \"phoneNumber\": \"+1234567890\"\n  }\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/{{apiVersion}}/tickets",
+              "host": ["{{baseUrl}}"],
+              "path": ["{{apiVersion}}", "tickets"]
+            }
+          }
+        },
+        {
+          "name": "List Tickets",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/{{apiVersion}}/tickets",
+              "host": ["{{baseUrl}}"],
+              "path": ["{{apiVersion}}", "tickets"],
+              "query": [
+                {
+                  "key": "status",
+                  "value": "OPEN",
+                  "disabled": true
+                },
+                {
+                  "key": "priority",
+                  "value": "HIGH",
+                  "disabled": true
+                },
+                {
+                  "key": "category",
+                  "value": "CORRECTIVE",
+                  "disabled": true
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Ticket by ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/{{apiVersion}}/tickets/{{ticketId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["{{apiVersion}}", "tickets", "{{ticketId}}"]
+            }
+          }
+        },
+        {
+          "name": "Update Ticket",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Updated ticket title\",\n  \"description\": \"Updated description\",\n  \"priority\": \"HIGH\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/{{apiVersion}}/tickets/{{ticketId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["{{apiVersion}}", "tickets", "{{ticketId}}"]
+            }
+          }
+        },
+        {
+          "name": "Update Ticket Status",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"IN_PROGRESS\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/{{apiVersion}}/tickets/{{ticketId}}/status",
+              "host": ["{{baseUrl}}"],
+              "path": ["{{apiVersion}}", "tickets", "{{ticketId}}", "status"]
+            }
+          }
+        },
+        {
+          "name": "Delete Ticket",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/{{apiVersion}}/tickets/{{ticketId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["{{apiVersion}}", "tickets", "{{ticketId}}"]
+            }
+          }
+        },
+        {
+          "name": "Delete All Tickets",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/{{apiVersion}}/tickets/delete/all",
+              "host": ["{{baseUrl}}"],
+              "path": ["{{apiVersion}}", "tickets", "delete", "all"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Categories",
+      "item": [
+        {
+          "name": "Create Category",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id\": \"PREVENTIVE\",\n  \"displayName\": \"Preventive Maintenance\",\n  \"description\": \"Scheduled maintenance to prevent equipment failure\",\n  \"isActive\": true,\n  \"subcategories\": [\n    {\n      \"name\": \"equipment_check\",\n      \"displayName\": \"Equipment Check\",\n      \"isActive\": true,\n      \"order\": 1\n    }\n  ]\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/{{apiVersion}}/categories",
+              "host": ["{{baseUrl}}"],
+              "path": ["{{apiVersion}}", "categories"]
+            }
+          }
+        },
+        {
+          "name": "List Categories",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/{{apiVersion}}/categories",
+              "host": ["{{baseUrl}}"],
+              "path": ["{{apiVersion}}", "categories"]
+            }
+          }
+        },
+        {
+          "name": "Get Category by ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/{{apiVersion}}/categories/{{categoryId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["{{apiVersion}}", "categories", "{{categoryId}}"]
+            }
+          }
+        },
+        {
+          "name": "Update Category",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"displayName\": \"Updated Category Name\",\n  \"description\": \"Updated description\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/{{apiVersion}}/categories/{{categoryId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["{{apiVersion}}", "categories", "{{categoryId}}"]
+            }
+          }
+        },
+        {
+          "name": "Delete Category",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/{{apiVersion}}/categories/{{categoryId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["{{apiVersion}}", "categories", "{{categoryId}}"]
+            }
+          }
+        },
+        {
+          "name": "Seed Categories",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/{{apiVersion}}/categories/seed",
+              "host": ["{{baseUrl}}"],
+              "path": ["{{apiVersion}}", "categories", "seed"]
+            }
+          }
+        },
+        {
+          "name": "Add Subcategory",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"new_subcategory\",\n  \"displayName\": \"New Subcategory\",\n  \"isActive\": true,\n  \"order\": 2\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/{{apiVersion}}/categories/{{categoryId}}/subcategories",
+              "host": ["{{baseUrl}}"],
+              "path": ["{{apiVersion}}", "categories", "{{categoryId}}", "subcategories"]
+            }
+          }
+        },
+        {
+          "name": "Update Subcategory",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"displayName\": \"Updated Subcategory Name\",\n  \"isActive\": false\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/{{apiVersion}}/categories/{{categoryId}}/subcategories/{{subcategoryName}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["{{apiVersion}}", "categories", "{{categoryId}}", "subcategories", "{{subcategoryName}}"]
+            }
+          }
+        },
+        {
+          "name": "Delete Subcategory",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/{{apiVersion}}/categories/{{categoryId}}/subcategories/{{subcategoryName}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["{{apiVersion}}", "categories", "{{categoryId}}", "subcategories", "{{subcategoryName}}"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Persons",
+      "item": [
+        {
+          "name": "Create Person",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"firstName\": \"John\",\n  \"lastName\": \"Doe\",\n  \"email\": \"john.doe@company.com\",\n  \"phoneNumber\": \"+1234567890\",\n  \"role\": \"TECHNICIAN\",\n  \"department\": \"MAINTENANCE\",\n  \"locationId\": \"location-123\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/{{apiVersion}}/persons",
+              "host": ["{{baseUrl}}"],
+              "path": ["{{apiVersion}}", "persons"]
+            }
+          }
+        },
+        {
+          "name": "List Persons",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/{{apiVersion}}/persons",
+              "host": ["{{baseUrl}}"],
+              "path": ["{{apiVersion}}", "persons"],
+              "query": [
+                {
+                  "key": "role",
+                  "value": "TECHNICIAN",
+                  "disabled": true
+                },
+                {
+                  "key": "department",
+                  "value": "MAINTENANCE",
+                  "disabled": true
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Person by ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/{{apiVersion}}/persons/{{personId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["{{apiVersion}}", "persons", "{{personId}}"]
+            }
+          }
+        },
+        {
+          "name": "Update Person",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"firstName\": \"Updated Name\",\n  \"email\": \"updated.email@company.com\",\n  \"role\": \"SUPERVISOR\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/{{apiVersion}}/persons/{{personId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["{{apiVersion}}", "persons", "{{personId}}"]
+            }
+          }
+        },
+        {
+          "name": "Delete Person",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/{{apiVersion}}/persons/{{personId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["{{apiVersion}}", "persons", "{{personId}}"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Get Auth Config",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/{{apiVersion}}/auth/config",
+              "host": ["{{baseUrl}}"],
+              "path": ["{{apiVersion}}", "auth", "config"]
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "ticketId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "categoryId", 
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "subcategoryName",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "personId",
+      "value": "",
+      "type": "string"
+    }
+  ]
+}
