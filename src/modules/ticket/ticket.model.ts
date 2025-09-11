@@ -19,7 +19,7 @@ const LOCATION_MOCK: LocationRef[] = [
   {
     id: 'loc-001',
     name: 'Edificio Central',
-    phoneNumbers: ['7866516455', '7865551234', '7865555678'],
+    phoneNumbers: ['7865551234', '7865555678'],
     address: '123 Main Street',
     city: 'Miami',
     state: 'FL',
@@ -86,7 +86,7 @@ const PERSON_MOCK: PersonModel[] = [
     updatedAt: '2024-01-01T00:00:00.000Z',
     firstName: 'Juan',
     lastName: 'Rodriguez',
-    phoneNumber: '7866516455',
+    phoneNumber: '7866516453',
     email: 'juan.rodriguez@maintenance.com',
     role: 'TECHNICIAN' as any,
     department: Department.MAINTENANCE,
