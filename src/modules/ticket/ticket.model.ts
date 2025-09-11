@@ -391,7 +391,7 @@ export function addNoteToTicket(
   createdByName?: string,
 ): TicketModel {
   const note = createTicketNote(content, type, createdBy, createdByName);
-  // Asegurar que notes existe como array, para compatibilidad con tickets existentes
+
   const existingNotes = Array.isArray(ticket.notes) ? ticket.notes : [];
   return {
     ...ticket,
