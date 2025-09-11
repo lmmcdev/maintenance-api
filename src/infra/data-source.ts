@@ -39,15 +39,10 @@ export async function getContainer(init: ContainerInit): Promise<Container> {
   const db = await getDb();
   const { container } = await db.containers.createIfNotExists({
     id,
-    partitionKey: { 
+    partitionKey: {
       paths: [partitionKeyPath],
-      kind: PartitionKeyKind.Hash
+      kind: PartitionKeyKind.Hash,
     },
-  });
-  console.log('[cosmos] init', {
-    db: env.cosmosDB.databaseName,
-    container: id,
-    pk: partitionKeyPath,
   });
 
   return container;
