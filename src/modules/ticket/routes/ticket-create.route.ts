@@ -10,16 +10,13 @@ import { TicketRoutes } from './index';
 
 const createTicketHandler = withHttp(
   async (req: HttpRequest, ctx: InvocationContext): Promise<HttpResponseInit> => {
+    ctx.log('Creating ticket...');
+    const body = await parseJson(req, CreateTicketDto);
+
+    const { audioString, description, fromText, attachmentsString, reporter, source } = body;
+
     const service = new TicketService(new TicketRepository());
     await service.init();
-    const {
-      audioString,
-      description,
-      fromText,
-      attachmentsString,
-      reporter,
-      source,
-    } = await parseJson(req, CreateTicketDto);
 
     // Parse audio from JSON string
     let audio: AttachmentRef | null = null;

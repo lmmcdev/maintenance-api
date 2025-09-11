@@ -1,16 +1,17 @@
-import type { HttpRequest } from "@azure/functions";
-import type { ZodTypeAny } from "zod";
-import { ValidationError } from "./app-error";
+import type { HttpRequest } from '@azure/functions';
+import type { ZodTypeAny } from 'zod';
+import { ValidationError } from './app-error';
 
 export async function parseJson<T extends ZodTypeAny>(
   req: HttpRequest,
-  schema: T
-): Promise<ReturnType<T["parse"]>> {
+  schema: T,
+): Promise<ReturnType<T['parse']>> {
   let body: unknown;
   try {
     body = await req.json();
+    console.log(`Raw request body: ${JSON.stringify(body)}`);
   } catch {
-    throw new ValidationError("Invalid JSON body");
+    throw new ValidationError('Invalid JSON body');
   }
 
   // Normaliza UUID-like (minúsculas) antes de Zod
@@ -18,9 +19,9 @@ export async function parseJson<T extends ZodTypeAny>(
   const result = await schema.safeParseAsync(preprocessed);
   if (!result.success) {
     // Estandariza el error a tu shape
-    throw new ValidationError("Validation failed", {
+    throw new ValidationError('Validation failed', {
       fields: result.error.issues.map((e) => ({
-        path: e.path.join("."),
+        path: e.path.join('.'),
         message: e.message,
         code: e.code,
       })),
@@ -31,8 +32,8 @@ export async function parseJson<T extends ZodTypeAny>(
 
 export async function parseQuery<T extends ZodTypeAny>(
   req: HttpRequest,
-  schema: T
-): Promise<ReturnType<T["parse"]>> {
+  schema: T,
+): Promise<ReturnType<T['parse']>> {
   const url = new URL(req.url);
   const raw = searchParamsToObject(url.searchParams);
 
@@ -41,9 +42,9 @@ export async function parseQuery<T extends ZodTypeAny>(
 
   const result = await schema.safeParseAsync(preprocessed);
   if (!result.success) {
-    throw new ValidationError("Validation failed", {
+    throw new ValidationError('Validation failed', {
       fields: result.error.issues.map((e) => ({
-        path: e.path.join("."),
+        path: e.path.join('.'),
         message: e.message,
         code: e.code,
       })),
@@ -66,19 +67,16 @@ function searchParamsToObject(sp: URLSearchParams): Record<string, unknown> {
   return obj;
 }
 
-const UUID_SHAPE =
-  /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+const UUID_SHAPE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 function normalizeUuidsDeep<T>(value: T): T {
-  if (typeof value === "string") {
-    return (UUID_SHAPE.test(value)
-      ? value.toLowerCase()
-      : value) as unknown as T;
+  if (typeof value === 'string') {
+    return (UUID_SHAPE.test(value) ? value.toLowerCase() : value) as unknown as T;
   }
   if (Array.isArray(value)) {
     return value.map(normalizeUuidsDeep) as unknown as T;
   }
-  if (value && typeof value === "object") {
+  if (value && typeof value === 'object') {
     const out: any = Array.isArray(value) ? [] : {};
     for (const [k, v] of Object.entries(value as any)) {
       out[k] = normalizeUuidsDeep(v);
