@@ -4,7 +4,8 @@ import { PersonRole } from '../../shared';
 
 export enum Department {
   MAINTENANCE = 'MAINTENANCE', // Brigada de mantenimiento
-  LOCATION = 'LOCATION' // Personal de las ubicaciones/locations
+  LOCATION = 'LOCATION', // Personal de las ubicaciones/locations
+  IT = 'IT', // Personal de IT
 }
 import type { LocationRef } from '../location/location.model';
 

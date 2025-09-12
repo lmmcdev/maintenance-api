@@ -4,7 +4,7 @@ import { TicketService } from '../ticket.service';
 import { TicketRepository } from '../ticket.repository';
 import { withHttp, parseJson, created } from '../../../shared';
 import { CreateTicketDto } from '../dtos/ticket-create.dto';
-import { createNewTicket, TicketModel } from '../ticket.model';
+import { TicketSource } from '../ticket.model';
 import { AttachmentRef } from '../../attachment/attachment.dto';
 import { TicketRoutes } from './index';
 
@@ -57,15 +57,12 @@ const createTicketHandler = withHttp(
         }
       : undefined;
 
-    const dto: TicketModel = createNewTicket(
+    const data = await service.createFromSource(source || TicketSource.OTHER, description, {
       audio,
-      description,
       fromText,
-      cleanReporter,
-      source,
+      reporter: cleanReporter,
       attachments,
-    );
-    const data = await service.createTicket(dto);
+    });
     ctx.info('Ticket created with ID:', data.id);
     return created(ctx, data);
   },

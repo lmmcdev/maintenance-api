@@ -26,4 +26,11 @@ export const PhoneSchema = z.string().trim().min(4);
 export enum PersonRole {
   SUPERVISOR = 'SUPERVISOR',
   TECHNICIAN = 'TECHNICIAN',
+  MANAGER = 'MANAGER',
+  STAFF = 'STAFF',
+  EXTERNAL = 'EXTERNAL',
+  ADMIN = 'ADMIN',
+  USER = 'USER',
+  SYSTEM = 'SYSTEM',
+  OTHER = 'OTHER',
 }

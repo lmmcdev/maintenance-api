@@ -27,6 +27,11 @@ export function buildListPersonsSql(q: PersonListQueryDto): SqlQuerySpec {
     push('@role', q.role);
   }
 
+  if (q.department) {
+    clauses.push('c.department = @department');
+    push('@department', q.department);
+  }
+
   if (q.email) {
     clauses.push('LOWER(c.email) = @email');
     push('@email', q.email.toLowerCase());
