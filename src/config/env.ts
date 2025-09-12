@@ -27,4 +27,7 @@ export const env = {
     redirectUri: process.env.AZURE_AD_REDIRECT_URI,
     postLogoutRedirectUri: process.env.AZURE_AD_POST_LOGOUT_REDIRECT_URI,
   },
+  externalApis: {
+    locationApiBaseUrl: process.env.LOCATION_API_BASE_URL ?? 'http://localhost:7100/api/v1',
+  },
 };
