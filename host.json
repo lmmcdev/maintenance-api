@@ -1,15 +1,24 @@
 {
   "version": "2.0",
+  "functionTimeout": "00:05:00",
   "logging": {
     "applicationInsights": {
-      "samplingSettings": {
-        "isEnabled": true,
-        "excludedTypes": "Request"
-      }
+      "samplingSettings": { "isEnabled": true, "excludedTypes": "Request" }
+    },
+    "logLevel": {
+      "Host.Startup": "Information",
+      "Function": "Information"
     }
   },
   "extensionBundle": {
     "id": "Microsoft.Azure.Functions.ExtensionBundle",
     "version": "[4.*, 5.0.0)"
+  },
+  "extensions": {
+    "http": {
+      "routePrefix": "api",
+      "maxOutstandingRequests": 200,
+      "maxConcurrentRequests": 200
+    }
   }
 }

@@ -7,7 +7,7 @@ import { TicketSource } from '../ticket.model';
 export const CreateTicketDto = z
   .object({
     title: z.string().min(1).optional().nullable(),
-    fromText: z.string().min(1).max(100).optional().nullable(),
+    fromText: z.string().min(1).max(100).optional(),
     description: z.string().min(1).max(1000),
     audioString: z.string().optional().nullable(),
     reporter: z

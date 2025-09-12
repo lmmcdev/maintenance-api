@@ -7,6 +7,10 @@ function baseHeaders(traceId: string): Record<string, string> {
     "Content-Type": "application/json; charset=utf-8",
     "Cache-Control": "no-store",
     "X-Trace-Id": traceId,
+    "Access-Control-Allow-Origin": "http://localhost:3000",
+    "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
+    "Access-Control-Allow-Headers": "Content-Type, Authorization",
+    "Access-Control-Allow-Credentials": "true",
   };
 }
 
@@ -61,4 +65,11 @@ export function fail(
     meta: meta(ctx),
   };
   return json(status, body, baseHeaders(body.meta!.traceId));
+}
+
+export function options(ctx: InvocationContext): HttpResponseInit {
+  return {
+    status: HTTP_STATUS.OK,
+    headers: baseHeaders(ctx.invocationId),
+  };
 }
