@@ -10,8 +10,15 @@ const NameSchema = z
   .max(80, 'Máximo 80 caracteres')
   .transform((s) => s.replace(/\s+/g, ' '));
 
-export const PersonRoleSchema = z.enum(PersonRole);
-export const DepartmentSchema = z.nativeEnum(Department);
+export const PersonRoleSchema = z
+  .string()
+  .transform((s) => s.toUpperCase())
+  .pipe(z.enum(PersonRole));
+
+export const DepartmentSchema = z
+  .string()
+  .transform((s) => s.toUpperCase())
+  .pipe(z.enum(Department));
 
 export const PersonCreateDto = z
   .object({
@@ -24,7 +31,7 @@ export const PersonCreateDto = z
       .max(254)
       .transform((s) => s.toLowerCase())
       .optional(),
-    role: PersonRoleSchema.default(PersonRole.TECHNICIAN),
+    role: PersonRoleSchema.default(PersonRole.USER),
     department: DepartmentSchema.optional(),
     locationId: z.string().optional(),
   })

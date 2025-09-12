@@ -1,7 +1,19 @@
 // src/modules/ticket/ticket.service.ts
 import { NotFoundError, TicketStatus } from '../../shared';
-import { TicketModel, TicketNote, createTicketNote, addNoteToTicket } from './ticket.model';
+import {
+  TicketModel,
+  TicketNote,
+  createTicketNote,
+  addNoteToTicket,
+  TicketSource,
+} from './ticket.model';
+import { TicketFactory } from './ticket.factory';
 import { TicketRepository } from './ticket.repository';
+import { AttachmentRef } from '../attachment/attachment.dto';
+import { PersonModel } from '../person/person.model';
+import { LocationRef } from '../location/location.model';
+import { TicketPriority } from '../../shared';
+import { TicketCategory, SubcategoryName } from './taxonomy.simple';
 
 export class TicketService {
   constructor(private ticketRepository: TicketRepository) {}
@@ -13,6 +25,109 @@ export class TicketService {
 
   async createTicket(data: Omit<TicketModel, 'id' | 'createdAt' | 'updatedAt'>) {
     return this.ticketRepository.create(data);
+  }
+
+  async createFromSource(
+    source: TicketSource,
+    description: string,
+    options?: {
+      audio?: AttachmentRef | null;
+      fromText?: string;
+      reporter?: Partial<PersonModel>;
+      attachments?: AttachmentRef[];
+    },
+  ) {
+    let ticket: TicketModel;
+
+    const { audio = null, fromText = '', reporter, attachments = [] } = options || {};
+
+    switch (source) {
+      case TicketSource.RINGCENTRAL:
+        ticket = TicketFactory.createFromRingCentral(audio, description, fromText, attachments);
+        break;
+      case TicketSource.EMAIL:
+        ticket = TicketFactory.createFromEmail(description, reporter, attachments);
+        break;
+      case TicketSource.WEB:
+        ticket = TicketFactory.createFromWeb('Web Ticket', description, undefined, undefined, {
+          attachments,
+        });
+        break;
+      default:
+        ticket = TicketFactory.createFromEmail(description, reporter, attachments);
+    }
+
+    return this.ticketRepository.create(ticket);
+  }
+
+  async createEmergency(
+    title: string,
+    description: string,
+    location: LocationRef,
+    reporter?: PersonModel,
+    attachments: AttachmentRef[] = [],
+  ) {
+    const ticket = TicketFactory.createEmergency(
+      title,
+      description,
+      location,
+      reporter,
+      attachments,
+    );
+    return this.ticketRepository.create(ticket);
+  }
+
+  async createPreventiveMaintenance(
+    title: string,
+    description: string,
+    assignees: PersonModel[],
+    location?: LocationRef,
+    options?: {
+      priority?: TicketPriority;
+      subcategory?: { name: SubcategoryName; displayName?: string };
+      attachments?: AttachmentRef[];
+    },
+  ) {
+    const ticket = TicketFactory.createPreventive(title, description, assignees, location, options);
+    return this.ticketRepository.create(ticket);
+  }
+
+  async createCorrectiveMaintenance(
+    title: string,
+    description: string,
+    reporter: PersonModel,
+    location: LocationRef,
+    options?: {
+      priority?: TicketPriority;
+      subcategory?: { name: SubcategoryName; displayName?: string };
+      attachments?: AttachmentRef[];
+    },
+  ) {
+    const ticket = TicketFactory.createCorrective(title, description, reporter, location, options);
+    return this.ticketRepository.create(ticket);
+  }
+
+  async createFromTemplate(
+    templateType: 'maintenance' | 'inspection' | 'repair',
+    overrides: Partial<TicketModel> & { title?: string; description?: string },
+  ) {
+    const template = TicketFactory.createTemplate(templateType);
+    const ticket = TicketFactory.createFromEmail(
+      overrides.description || template.description!,
+      overrides.reporter,
+      overrides.attachments || [],
+    );
+    return this.ticketRepository.create(ticket);
+  }
+
+  async cloneTicket(ticketId: string, overrides?: Partial<TicketModel>) {
+    const originalTicket = await this.getById(ticketId);
+    if (!originalTicket) {
+      throw new NotFoundError(`Ticket with ID ${ticketId} not found`);
+    }
+
+    const clonedTicket = TicketFactory.clone(originalTicket, overrides);
+    return this.ticketRepository.create(clonedTicket);
   }
 
   async getTicket(id: string) {
@@ -64,7 +179,7 @@ export class TicketService {
 
   async cancelTicket(id: string, reason?: string, cancelledBy?: string, cancelledByName?: string) {
     const patch = this.patchForStatus(TicketStatus.CANCELLED);
-    
+
     // Si se proporciona una razón, agregar una nota de cancelación
     if (reason) {
       const ticket = await this.getById(id);
@@ -74,12 +189,12 @@ export class TicketService {
           reason,
           'cancellation',
           cancelledBy,
-          cancelledByName
+          cancelledByName,
         );
         patch.notes = updatedTicket.notes;
       }
     }
-    
+
     return this.ticketRepository.update(id, patch);
   }
 
@@ -100,7 +215,7 @@ export class TicketService {
     content: string,
     type: TicketNote['type'] = 'general',
     createdBy?: string,
-    createdByName?: string
+    createdByName?: string,
   ): Promise<TicketModel> {
     const ticket = await this.getById(id);
     if (!ticket) {

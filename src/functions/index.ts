@@ -16,6 +16,7 @@ import '../modules/ticket/routes/ticket-notes-get.route';
 import '../modules/ticket/routes/ticket-migrate-notes.route';
 
 // persons - route
+import '../modules/person/routes/person-maintenance.route';
 import '../modules/person/routes/person-create.route';
 import '../modules/person/routes/person-update.route';
 import '../modules/person/routes/person-list.route';

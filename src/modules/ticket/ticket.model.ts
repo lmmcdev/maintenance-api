@@ -161,8 +161,8 @@ export interface TicketNote {
   content: string;
   type: 'general' | 'cancellation' | 'status_change' | 'assignment' | 'resolution';
   createdAt: string;
-  createdBy?: string; // ID del usuario que creó la nota
-  createdByName?: string; // Nombre del usuario para referencia
+  createdBy?: string;
+  createdByName?: string;
 }
 
 export interface TicketModel extends BaseDocument {
