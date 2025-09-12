@@ -46,7 +46,7 @@ export class TicketService {
         ticket = TicketFactory.createFromRingCentral(audio, description, fromText, attachments);
         break;
       case TicketSource.EMAIL:
-        ticket = TicketFactory.createFromEmail(description, reporter, attachments);
+        ticket = await TicketFactory.createFromEmail(description, reporter, attachments);
         break;
       case TicketSource.WEB:
         ticket = TicketFactory.createFromWeb('Web Ticket', description, undefined, undefined, {
@@ -54,7 +54,7 @@ export class TicketService {
         });
         break;
       default:
-        ticket = TicketFactory.createFromEmail(description, reporter, attachments);
+        ticket = await TicketFactory.createFromEmail(description, reporter, attachments);
     }
 
     return this.ticketRepository.create(ticket);
@@ -112,7 +112,7 @@ export class TicketService {
     overrides: Partial<TicketModel> & { title?: string; description?: string },
   ) {
     const template = TicketFactory.createTemplate(templateType);
-    const ticket = TicketFactory.createFromEmail(
+    const ticket = await TicketFactory.createFromEmail(
       overrides.description || template.description!,
       overrides.reporter,
       overrides.attachments || [],

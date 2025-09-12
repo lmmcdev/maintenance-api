@@ -1,7 +1,7 @@
 import type { AttachmentRef } from '../attachment/attachment.dto';
-import type { PersonModel } from '../person/person.model';
+import { Department, type PersonModel } from '../person/person.model';
 import type { LocationRef } from '../location/location.model';
-import { TicketStatus, TicketPriority, options } from '../../shared';
+import { TicketStatus, TicketPriority, options, PersonRole } from '../../shared';
 import { TicketCategory, SubcategoryName } from './taxonomy.simple';
 import {
   TicketSource,
@@ -10,6 +10,8 @@ import {
   createNewTicket,
   createTicketNote,
 } from './ticket.model';
+import { PersonService } from '../person/person.service';
+import { PersonRepository } from '../person/person.repository';
 
 export class TicketFactory {
   static createFromRingCentral(
@@ -28,24 +30,45 @@ export class TicketFactory {
     );
   }
 
-  static createFromEmail(
+  static async createFromEmail(
     description: string,
     reporter?: Partial<PersonModel>,
     attachments: AttachmentRef[] = [],
-  ): TicketModel {
+  ): Promise<TicketModel> {
+    let foundReporter: PersonModel | null = null;
+    const email = reporter?.email?.toLowerCase();
+    const personService = new PersonService(new PersonRepository());
+    if (email) {
+      await personService.init();
+
+      foundReporter = await personService.findByEmail(email);
+    }
+    if (!foundReporter) {
+      foundReporter = await personService.createPerson({
+        firstName: reporter?.firstName ?? 'Guest',
+        lastName: reporter?.lastName ?? 'User',
+        email: email ?? undefined,
+        phoneNumber: reporter?.phoneNumber ?? undefined,
+        location: reporter?.location ?? undefined,
+        role: PersonRole.USER,
+        department: Department.GENERAL,
+      });
+    }
+
     const newTicket: TicketModel = {
       id: crypto.randomUUID(),
-      title: `${reporter?.firstName} ${reporter?.lastName}`,
+      title: `${foundReporter?.firstName} ${foundReporter?.lastName}`,
       description,
       status: TicketStatus.NEW,
       priority: TicketPriority.MEDIUM,
       category: null,
       subcategory: null,
-      reporterId: reporter?.id || '',
-      reporter: reporter as PersonModel,
+      reporterId: foundReporter?.id || '',
+      reporter: foundReporter as PersonModel,
       assigneeIds: [],
       assignees: [],
-      location: reporter?.location || undefined,
+      locationId: foundReporter?.locationId || undefined,
+      location: foundReporter?.location || undefined,
       source: TicketSource.EMAIL,
       attachments,
       notes: [],

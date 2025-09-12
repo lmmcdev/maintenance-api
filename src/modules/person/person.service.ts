@@ -40,4 +40,12 @@ export class PersonService {
   async deletePerson(id: string): Promise<boolean> {
     return this.personRepository.delete(id);
   }
+
+  async findByEmail(email: string): Promise<PersonModel | null> {
+    return this.personRepository.findByEmail(email);
+  }
+
+  async findByPhone(phone: string): Promise<PersonModel | null> {
+    return this.personRepository.findByPhoneNumber(phone);
+  }
 }

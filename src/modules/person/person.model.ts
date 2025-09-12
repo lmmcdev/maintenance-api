@@ -6,6 +6,7 @@ export enum Department {
   MAINTENANCE = 'MAINTENANCE', // Brigada de mantenimiento
   LOCATION = 'LOCATION', // Personal de las ubicaciones/locations
   IT = 'IT', // Personal de IT
+  GENERAL = 'GENERAL', // Otro personal general
 }
 import type { LocationRef } from '../location/location.model';
 
