@@ -60,7 +60,7 @@ const createTicketHandler = withHttp(
     const dto: TicketModel = createNewTicket(
       audio,
       description,
-      fromText ?? 'Unknown',
+      fromText,
       cleanReporter,
       source,
       attachments,

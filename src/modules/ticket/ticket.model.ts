@@ -202,7 +202,7 @@ export interface TicketModel extends BaseDocument {
 export function createNewTicket(
   audio: AttachmentRef | null,
   description: string,
-  fromText: string,
+  fromText?: string,
   reporter?: Partial<PersonModel>,
   source: TicketSource = TicketSource.OTHER,
   attachments: AttachmentRef[] = [],
@@ -220,11 +220,11 @@ export function createNewTicket(
   const now = new Date().toISOString();
 
   let phoneNumber: string | undefined;
-  let fullName = fromText.trim();
+  let fullName = fromText?.trim();
 
   // Check for phone number in format "(XXX) XXX-XXXX" at the end
   // This regex handles: "Name (305) 244-4475" or "Name, (786) 651-6455"
-  const phoneMatch = fromText.match(/^(.+?),?\s*\((\d{3})\)\s*([\d\-]+)$/);
+  const phoneMatch = fromText?.match(/^(.+?),?\s*\((\d{3})\)\s*([\d\-]+)$/);
   if (phoneMatch) {
     fullName = phoneMatch[1].trim();
     // Remove trailing comma if present
@@ -244,7 +244,7 @@ export function createNewTicket(
       .join(' ');
   } else {
     // Try other formats with space-separated parts
-    const parts = fromText.trim().split(/\s+/);
+    const parts = fromText?.trim().split(/\s+/);
 
     if (parts && parts.length >= 3) {
       // Check if first and last parts are the same (likely phone number)
