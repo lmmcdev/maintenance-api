@@ -27,4 +27,7 @@ export const env = {
     redirectUri: process.env.AZURE_AD_REDIRECT_URI,
     postLogoutRedirectUri: process.env.AZURE_AD_POST_LOGOUT_REDIRECT_URI,
   },
+  groups: {
+    maintenance: process.env.GROUP_MAINTENANCE_ID ?? 'app-maintenance-group',
+  },
 };

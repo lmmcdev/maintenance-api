@@ -10,11 +10,20 @@ import { TicketRoutes } from './index';
 
 import { PersonService } from '../../person/person.service';
 import { PersonRepository } from '../../person/person.repository';
+import {
+  withMiddleware,
+  requireAuth,
+  AuthenticatedContext,
+  requireGroups,
+} from '../../../middleware';
+import { env } from '../../../config/env';
 
 const ParamsSchema = z.object({ id: z.uuid() });
 
 const updateTicketHandler = withHttp(
-  async (req: HttpRequest, ctx: InvocationContext): Promise<HttpResponseInit> => {
+  async (req: HttpRequest, ctx: AuthenticatedContext): Promise<HttpResponseInit> => {
+    // auth
+
     const { id } = ParamsSchema.parse(req.params);
     const patch = await parseJson(req, UpdateTicketDto);
 
@@ -80,9 +89,14 @@ const updateTicketHandler = withHttp(
   },
 );
 
+const handler = withMiddleware(
+  [requireGroups([env.groups.maintenance]), requireAuth()],
+  updateTicketHandler,
+);
+
 app.http('tickets-update', {
   methods: ['PATCH'],
   authLevel: 'anonymous',
   route: TicketRoutes.update,
-  handler: updateTicketHandler,
+  handler,
 });
