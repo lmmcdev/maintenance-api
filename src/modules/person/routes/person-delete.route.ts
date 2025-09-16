@@ -2,6 +2,8 @@
 import { z } from 'zod';
 import { app, HttpRequest, HttpResponseInit, InvocationContext } from '@azure/functions';
 import { withHttp, noContent } from '../../../shared';
+import { requireAuth, requireGroups, withMiddleware } from '../../../middleware';
+import { env } from '../../../config/env';
 import { PersonService } from '../person.service';
 import { PersonRepository } from '../person.repository';
 import { PersonRoutes } from './index';
@@ -34,9 +36,14 @@ const deletePersonHandler = withHttp(
   },
 );
 
+const handler = withMiddleware(
+  [requireGroups([env.groups.maintenance]), requireAuth()],
+  deletePersonHandler,
+);
+
 app.http('persons-delete-byId', {
   methods: ['DELETE'],
   authLevel: 'anonymous',
   route: PersonRoutes.delete, // p.ej. "v1/persons/{id}"
-  handler: deletePersonHandler,
+  handler,
 });

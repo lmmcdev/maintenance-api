@@ -1,6 +1,8 @@
 // src/modules/category/routes/category-seed.route.ts
 import { app, HttpRequest, HttpResponseInit, InvocationContext } from '@azure/functions';
 import { withHttp, created, ok } from '../../../shared';
+import { requireAuth, requireGroups, withMiddleware } from '../../../middleware';
+import { env } from '../../../config/env';
 import { CategoryService } from '../category.service';
 import { CategoryRepository } from '../category.repository';
 import { CategoryRoutes } from './index';
@@ -50,7 +52,7 @@ const SEED = [
   },
 ];
 
-const handler = withHttp(
+const originalHandler = withHttp(
   async (_req: HttpRequest, ctx: InvocationContext): Promise<HttpResponseInit> => {
     const svc = await new CategoryService(new CategoryRepository()).init();
 
@@ -75,6 +77,11 @@ const handler = withHttp(
     const status = results.some((r) => r.action === 'created') ? 201 : 200;
     return { status, jsonBody: { success: true, results, count: results.length } };
   },
+);
+
+const handler = withMiddleware(
+  [requireGroups([env.groups.maintenance]), requireAuth()],
+  originalHandler,
 );
 
 app.http('category-seed', {

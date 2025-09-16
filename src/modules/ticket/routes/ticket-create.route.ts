@@ -3,6 +3,8 @@ import { app, HttpRequest, HttpResponseInit, InvocationContext } from '@azure/fu
 import { TicketService } from '../ticket.service';
 import { TicketRepository } from '../ticket.repository';
 import { withHttp, parseJson, created } from '../../../shared';
+import { requireAuth, requireGroups, withMiddleware } from '../../../middleware';
+import { env } from '../../../config/env';
 import { CreateTicketDto } from '../dtos/ticket-create.dto';
 import { TicketSource } from '../ticket.model';
 import { AttachmentRef } from '../../attachment/attachment.dto';
@@ -68,9 +70,14 @@ const createTicketHandler = withHttp(
   },
 );
 
+const handler = withMiddleware(
+  [requireGroups([env.groups.maintenance]), requireAuth()],
+  createTicketHandler,
+);
+
 app.http('tickets-create', {
   methods: ['POST'],
   authLevel: 'anonymous',
   route: TicketRoutes.create,
-  handler: createTicketHandler,
+  handler,
 });

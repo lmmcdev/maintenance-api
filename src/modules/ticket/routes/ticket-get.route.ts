@@ -3,6 +3,8 @@ import { app, HttpRequest, HttpResponseInit, InvocationContext } from '@azure/fu
 import { TicketService } from '../ticket.service';
 import { TicketRepository } from '../ticket.repository';
 import { withHttp, idParamSchema, ok } from '../../../shared';
+import { requireAuth, requireGroups, withMiddleware } from '../../../middleware';
+import { env } from '../../../config/env';
 import { TicketRoutes } from './index';
 
 const getTicketByIdHandler = withHttp(
@@ -15,9 +17,14 @@ const getTicketByIdHandler = withHttp(
   },
 );
 
+const handler = withMiddleware(
+  [requireGroups([env.groups.maintenance]), requireAuth()],
+  getTicketByIdHandler,
+);
+
 app.http('tickets-get', {
   methods: ['GET'],
   authLevel: 'anonymous',
   route: TicketRoutes.get,
-  handler: getTicketByIdHandler,
+  handler,
 });

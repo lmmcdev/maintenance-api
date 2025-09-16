@@ -2,6 +2,8 @@
 import { z } from 'zod';
 import { app, HttpRequest, HttpResponseInit, InvocationContext } from '@azure/functions';
 import { withHttp, ok, parseJson } from '../../../shared';
+import { requireAuth, requireGroups, withMiddleware } from '../../../middleware';
+import { env } from '../../../config/env';
 
 import { PersonUpdateDto } from '../dtos/person-update.dto';
 import { PersonService } from '../person.service';
@@ -45,9 +47,14 @@ const updatePersonHandler = withHttp(
   },
 );
 
+const handler = withMiddleware(
+  [requireGroups([env.groups.maintenance]), requireAuth()],
+  updatePersonHandler,
+);
+
 app.http('update-person-byId', {
   methods: ['PATCH'],
   authLevel: 'anonymous',
   route: PersonRoutes.update, // URL final: /api/v1/persons/{id}
-  handler: updatePersonHandler,
+  handler,
 });
