@@ -35,8 +35,8 @@ export class PersonRepository extends CosmosRepository<PersonModel> {
   }
 
   // Si quieres paginado simple por SQL (usa fetchAll en el base)
-  async list(sql: SqlQuerySpec, page = 1, pageSize = 20) {
-    return super.list(sql, page, pageSize);
+  async list(sql: SqlQuerySpec & { limit?: number; continuationToken?: string }) {
+    return super.list(sql);
   }
 
   // ----- Helpers específicos -----
@@ -47,7 +47,7 @@ export class PersonRepository extends CosmosRepository<PersonModel> {
       query: 'SELECT * FROM c WHERE LOWER(c.email) = @email',
       parameters: [{ name: '@email', value: email.toLowerCase() }],
     };
-    const { items } = await super.list(q, 1, 1);
+    const { items } = await super.list({ ...q, limit: 1 });
     return items[0] ?? null;
   }
 
@@ -57,7 +57,7 @@ export class PersonRepository extends CosmosRepository<PersonModel> {
         'SELECT * FROM c WHERE CONTAINS(c.firstName, @t, true) OR CONTAINS(c.lastName, @t, true)',
       parameters: [{ name: '@t', value: term }],
     };
-    const { items } = await super.list(q, 1, limit);
+    const { items } = await super.list({ ...q, limit });
     return items;
   }
 
@@ -67,7 +67,7 @@ export class PersonRepository extends CosmosRepository<PersonModel> {
       query: 'SELECT * FROM c WHERE c.department = @department',
       parameters: [{ name: '@department', value: department }],
     };
-    const { items } = await super.list(q, 1, 100);
+    const { items } = await super.list({ ...q, limit: 100 });
     return items;
   }
 
@@ -77,7 +77,7 @@ export class PersonRepository extends CosmosRepository<PersonModel> {
       query: 'SELECT * FROM c WHERE c.locationId = @locationId',
       parameters: [{ name: '@locationId', value: locationId }],
     };
-    const { items } = await super.list(q, 1, 100);
+    const { items } = await super.list({ ...q, limit: 100 });
     return items;
   }
 
@@ -87,7 +87,7 @@ export class PersonRepository extends CosmosRepository<PersonModel> {
       query: 'SELECT * FROM c WHERE c.phoneNumber = @phoneNumber',
       parameters: [{ name: '@phoneNumber', value: phoneNumber }],
     };
-    const { items } = await super.list(q, 1, 1);
+    const { items } = await super.list({ ...q, limit: 1 });
     return items[0] ?? null;
   }
 }

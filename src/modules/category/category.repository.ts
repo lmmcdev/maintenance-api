@@ -21,11 +21,12 @@ export class CategoryRepository extends CosmosRepository<CategoryModel> {
   }
 
   async listActive(): Promise<{ items: CategoryModel[] }> {
-    const sql: SqlQuerySpec = {
+    const sql: SqlQuerySpec & { limit?: number } = {
       query: 'SELECT * FROM c WHERE c.isActive = true ORDER BY c.id ASC',
       parameters: [],
+      limit: 1000,
     };
-    return super.list(sql, 1, 1000);
+    return super.list(sql);
   }
 
   async upsertSubcategory(id: string, sub: SubcategoryModel): Promise<CategoryModel> {

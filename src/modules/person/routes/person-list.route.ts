@@ -14,16 +14,14 @@ const listPersonsHandler = withHttp(
     await repo.init();
 
     const sql = buildListPersonsSql(q);
-    const page = q.page ?? 1;
-    const pageSize = q.limit ?? 20;
+    const limit = q.limit ?? 20;
 
-    const { items } = await repo.list(sql, page, pageSize);
+    const { items } = await repo.list({ ...sql, limit });
 
     return ok(ctx, {
       items,
       pageInfo: {
-        page,
-        pageSize,
+        limit,
         sortBy: q.sortBy,
         sortDir: q.sortDir,
       },

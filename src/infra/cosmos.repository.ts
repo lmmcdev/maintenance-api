@@ -73,9 +73,19 @@ export class CosmosRepository<T extends BaseDocument> {
     return true;
   }
 
-  async list(sql: SqlQuerySpec, page = 1, pageSize = 20): Promise<ListResult<T>> {
-    // You may want to implement continuation token logic for real paging
-    const { resources } = await this.container.items.query<T>(sql).fetchAll();
-    return { items: resources };
+  async list(sql: SqlQuerySpec & { limit?: number; continuationToken?: string }): Promise<ListResult<T>> {
+    const { limit = 20, continuationToken } = sql;
+
+    const queryIterator = this.container.items.query<T>(sql, {
+      maxItemCount: limit,
+      continuationToken: continuationToken,
+    });
+
+    const { resources, continuationToken: nextContinuationToken } = await queryIterator.fetchNext();
+
+    return {
+      items: resources || [],
+      continuationToken: nextContinuationToken
+    };
   }
 }
