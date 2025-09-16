@@ -1,10 +1,11 @@
 // src/modules/health/health.route.ts
-import { app, HttpRequest, HttpResponseInit, InvocationContext } from '@azure/functions';
+import { app, HttpRequest, HttpResponseInit } from '@azure/functions';
 import { promises as fs } from 'fs';
 import path from 'path';
 
-import { withHttp, ok } from '../../shared';
-import { requireAuth, AuthenticatedRequest } from '../../modules/auth/auth.middleware';
+import { ok } from '../../shared';
+import { withMiddleware, requireAuth, AuthenticatedContext, requireGroups } from '../../middleware';
+import { env } from '../../config/env';
 
 type BuildInfo = {
   appName?: string;
@@ -28,61 +29,59 @@ async function readBuildInfo(): Promise<BuildInfo | null> {
   }
 }
 
-const handler = requireAuth(
-  async (req: AuthenticatedRequest, ctx: InvocationContext): Promise<HttpResponseInit> => {
-    // Ahora usamos el usuario autenticado desde Azure AD
-    const user = req.user;
-    
-    if (!user) {
-      return { status: 401, jsonBody: { message: 'User not authenticated' } };
-    }
+const healthHandler = async (
+  req: HttpRequest,
+  ctx: AuthenticatedContext,
+): Promise<HttpResponseInit> => {
+  const bi = await readBuildInfo();
 
-    ctx.log(`Health check requested by user ${user.email} (${user.id})`);
+  // Fallback a variables de entorno si no hay archivo
+  const fallback: BuildInfo = {
+    appName: process.env.APP_NAME ?? 'no-app-name',
+    version: process.env.BUILD_VERSION ?? 'no-build-version',
+    commit: {
+      sha: process.env.BUILD_COMMIT ?? 'no-build-commit',
+      short: process.env.BUILD_SHORT_SHA ?? 'no-build-short-sha',
+      message: process.env.BUILD_MESSAGE ?? 'no-build-message',
+      author: process.env.BUILD_AUTHOR ?? 'no-build-author',
+      branch: process.env.BUILD_BRANCH ?? 'no-build-branch',
+    },
+    ci: {
+      repo: process.env.GITHUB_REPOSITORY ?? 'no-github-repository',
+      runId: process.env.GITHUB_RUN_ID ?? 'no-github-run-id',
+      runNumber: process.env.GITHUB_RUN_NUMBER ?? 'no-github-run-number',
+      workflow: process.env.GITHUB_WORKFLOW ?? 'no-github-workflow',
+    },
+    builtAt: process.env.BUILD_TIME ?? 'no-build-time',
+    env: process.env.NODE_ENV ?? 'production',
+  };
 
-    const bi = await readBuildInfo();
+  return ok(ctx, {
+    status: 'ok',
+    uptimeSec: Math.round(process.uptime()),
+    pid: process.pid,
+    instance: process.env.WEBSITE_INSTANCE_ID,
+    region: process.env.REGION_NAME || process.env.WEBSITE_HOME_STAMPNAME,
+    build: bi ?? fallback,
+    user: ctx.user
+      ? {
+          id: ctx.user.id,
+          email: ctx.user.email,
+          roles: ctx.user.roles,
+          groups: ctx.user.groups,
+        }
+      : null,
+  });
+};
 
-    // Fallback a variables de entorno si no hay archivo
-    const fallback: BuildInfo = {
-      appName: process.env.APP_NAME ?? 'no-app-name',
-      version: process.env.BUILD_VERSION ?? 'no-build-version',
-      commit: {
-        sha: process.env.BUILD_COMMIT ?? 'no-build-commit',
-        short: process.env.BUILD_SHORT_SHA ?? 'no-build-short-sha',
-        message: process.env.BUILD_MESSAGE ?? 'no-build-message',
-        author: process.env.BUILD_AUTHOR ?? 'no-build-author',
-        branch: process.env.BUILD_BRANCH ?? 'no-build-branch',
-      },
-      ci: {
-        repo: process.env.GITHUB_REPOSITORY ?? 'no-github-repository',
-        runId: process.env.GITHUB_RUN_ID ?? 'no-github-run-id',
-        runNumber: process.env.GITHUB_RUN_NUMBER ?? 'no-github-run-number',
-        workflow: process.env.GITHUB_WORKFLOW ?? 'no-github-workflow',
-      },
-      builtAt: process.env.BUILD_TIME ?? 'no-build-time',
-      env: process.env.NODE_ENV ?? 'production',
-    };
-
-    return ok(ctx, {
-      status: 'ok',
-      uptimeSec: Math.round(process.uptime()),
-      pid: process.pid,
-      instance: process.env.WEBSITE_INSTANCE_ID,
-      region: process.env.REGION_NAME || process.env.WEBSITE_HOME_STAMPNAME,
-      build: bi ?? fallback,
-      // Incluimos información del usuario autenticado
-      user: {
-        id: user.id,
-        email: user.email,
-        name: user.name,
-        roles: user.roles,
-      },
-    });
-  },
+const handler = withMiddleware(
+  [requireGroups([env.groups.maintenance]), requireAuth()],
+  healthHandler,
 );
 
 app.http('app-health', {
   methods: ['GET'],
   authLevel: 'anonymous',
-  route: 'v1/health', // => /api/v1/health
+  route: 'v1/health',
   handler,
 });

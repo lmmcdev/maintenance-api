@@ -9,7 +9,8 @@
     "clean": "rimraf dist",
     "prestart": "npm run clean && npm run build",
     "start": "func start",
-    "test": "echo \"No tests yet...\""
+    "test": "echo \"No tests yet...\"",
+    "dev:tokens": "ts-node src/utils/dev-token.ts"
   },
   "dependencies": {
     "@azure/cosmos": "^4.5.0",
