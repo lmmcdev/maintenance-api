@@ -2,6 +2,8 @@
 import { z } from 'zod';
 import { app, HttpRequest, HttpResponseInit, InvocationContext } from '@azure/functions';
 import { withHttp, ok } from '../../../shared';
+import { requireAuth, requireGroups, withMiddleware } from '../../../middleware';
+import { env } from '../../../config/env';
 import { PersonService } from '../person.service';
 import { PersonRepository } from '../person.repository';
 import { PersonRoutes } from '.';
@@ -32,9 +34,14 @@ const getPersonHandler = withHttp(
   },
 );
 
+const handler = withMiddleware(
+  [requireGroups([env.groups.maintenance]), requireAuth()],
+  getPersonHandler,
+);
+
 app.http('persons-get-byId', {
   methods: ['GET'],
   authLevel: 'anonymous',
   route: PersonRoutes.get, // URL final: /api/v1/persons/{id}
-  handler: getPersonHandler,
+  handler,
 });

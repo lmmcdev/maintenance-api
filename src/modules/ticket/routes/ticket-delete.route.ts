@@ -2,6 +2,8 @@ import { z } from 'zod';
 import { app, HttpRequest, HttpResponseInit, InvocationContext } from '@azure/functions';
 
 import { withHttp, noContent } from '../../../shared';
+import { requireAuth, requireGroups, withMiddleware } from '../../../middleware';
+import { env } from '../../../config/env';
 import { TicketService } from '../ticket.service';
 import { TicketRepository } from '../ticket.repository';
 import { TicketRoutes } from './index';
@@ -33,9 +35,14 @@ const deleteTicketHandler = withHttp(
   },
 );
 
+const handler = withMiddleware(
+  [requireGroups([env.groups.maintenance]), requireAuth()],
+  deleteTicketHandler,
+);
+
 app.http('tickets-delete', {
   methods: ['DELETE'],
   authLevel: 'anonymous',
   route: TicketRoutes.delete, // "v1/tickets/{id}" (con /api implícito)
-  handler: deleteTicketHandler,
+  handler,
 });

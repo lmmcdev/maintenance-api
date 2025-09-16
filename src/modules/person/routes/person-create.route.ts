@@ -1,5 +1,7 @@
 import { app, HttpRequest, HttpResponseInit, InvocationContext } from '@azure/functions';
 import { withHttp, created, parseJson } from '../../../shared';
+import { requireAuth, requireGroups, withMiddleware } from '../../../middleware';
+import { env } from '../../../config/env';
 
 import { PersonCreateDto } from '../dtos/person-create.dto';
 import { PersonService } from '../person.service';
@@ -34,9 +36,14 @@ const createPersonHandler = withHttp(
   },
 );
 
+const handler = withMiddleware(
+  [requireGroups([env.groups.maintenance]), requireAuth()],
+  createPersonHandler,
+);
+
 app.http('persons-create', {
   methods: ['POST'],
   authLevel: 'anonymous',
   route: PersonRoutes.create,
-  handler: createPersonHandler,
+  handler,
 });

@@ -2,6 +2,8 @@
 import { z } from 'zod';
 import { app, HttpRequest, HttpResponseInit, InvocationContext } from '@azure/functions';
 import { withHttp, ok, parseJson } from '../../../shared';
+import { requireAuth, requireGroups, withMiddleware } from '../../../middleware';
+import { env } from '../../../config/env';
 import { SubcategoryAddDto } from '../dtos/subcategory.dto';
 import { CategoryService } from '../category.service';
 import { CategoryRepository } from '../category.repository';
@@ -9,7 +11,7 @@ import { CategoryRoutes } from './index';
 
 const Params = z.object({ id: z.string().trim().toUpperCase() });
 
-const handler = withHttp(async (req, ctx): Promise<HttpResponseInit> => {
+const originalHandler = withHttp(async (req, ctx): Promise<HttpResponseInit> => {
   const { id } = Params.parse(req.params);
   const body = await parseJson(req, SubcategoryAddDto);
 
@@ -22,6 +24,11 @@ const handler = withHttp(async (req, ctx): Promise<HttpResponseInit> => {
   });
   return ok(ctx, updated);
 });
+
+const handler = withMiddleware(
+  [requireGroups([env.groups.maintenance]), requireAuth()],
+  originalHandler,
+);
 
 app.http('subcategory-add', {
   methods: ['POST'],

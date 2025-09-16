@@ -1,5 +1,7 @@
 import { app, HttpRequest, HttpResponseInit, InvocationContext } from '@azure/functions';
 import { withHttp, ok, parseQuery } from '../../../shared';
+import { requireAuth, requireGroups, withMiddleware } from '../../../middleware';
+import { env } from '../../../config/env';
 import { Department } from '../person.model';
 import { PersonListQueryDto } from '../dtos/person-list.dto';
 import { buildListPersonsSql } from '../person.query';
@@ -32,9 +34,14 @@ const listMaintenanceWorkersHandler = withHttp(
   },
 );
 
+const handler = withMiddleware(
+  [requireGroups([env.groups.maintenance]), requireAuth()],
+  listMaintenanceWorkersHandler,
+);
+
 app.http('persons-maintenance', {
   methods: ['GET'],
   authLevel: 'anonymous',
   route: PersonRoutes.maintenance,
-  handler: listMaintenanceWorkersHandler,
+  handler,
 });

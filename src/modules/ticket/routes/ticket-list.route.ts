@@ -1,6 +1,8 @@
 // src/modules/ticket/ticket.list.http.ts
 import { app, HttpRequest, HttpResponseInit, InvocationContext } from '@azure/functions';
 import { withHttp, ok, parseQuery } from '../../../shared';
+import { requireAuth, requireGroups, withMiddleware } from '../../../middleware';
+import { env } from '../../../config/env';
 import { ListTicketsQueryDto } from '../dtos/ticket-list.dto';
 import { buildListTicketsSql } from '../ticket.query';
 import { TicketService } from '../ticket.service';
@@ -34,9 +36,14 @@ const listTicketsHandler = withHttp(
   },
 );
 
+const handler = withMiddleware(
+  [requireGroups([env.groups.maintenance]), requireAuth()],
+  listTicketsHandler,
+);
+
 app.http('tickets-list', {
   methods: ['GET'],
   authLevel: 'anonymous',
   route: TicketRoutes.list,
-  handler: listTicketsHandler,
+  handler,
 });

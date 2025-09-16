@@ -2,6 +2,8 @@
 import { z } from 'zod';
 import { app, HttpRequest, HttpResponseInit, InvocationContext } from '@azure/functions';
 import { withHttp, ok, parseJson } from '../../../shared';
+import { requireAuth, requireGroups, withMiddleware } from '../../../middleware';
+import { env } from '../../../config/env';
 import { SubcategoryUpdateDto } from '../dtos/subcategory.dto';
 import { CategoryService } from '../category.service';
 import { CategoryRepository } from '../category.repository';
@@ -12,7 +14,7 @@ const Params = z.object({
   name: z.string().trim(),
 });
 
-const handler = withHttp(async (req, ctx): Promise<HttpResponseInit> => {
+const originalHandler = withHttp(async (req, ctx): Promise<HttpResponseInit> => {
   const { id, name } = Params.parse(req.params);
   const patch = await parseJson(req, SubcategoryUpdateDto);
 
@@ -40,6 +42,11 @@ const handler = withHttp(async (req, ctx): Promise<HttpResponseInit> => {
   const updated = await svc.addOrUpdateSubcategory(id, { ...existing, ...patch });
   return ok(ctx, updated);
 });
+
+const handler = withMiddleware(
+  [requireGroups([env.groups.maintenance]), requireAuth()],
+  originalHandler,
+);
 
 app.http('subcategory-update', {
   methods: ['PATCH'],

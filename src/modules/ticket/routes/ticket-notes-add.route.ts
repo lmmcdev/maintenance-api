@@ -5,6 +5,8 @@ import { TicketService } from '../ticket.service';
 import { TicketRepository } from '../ticket.repository';
 import { withHttp, ok, fail, parseJson } from '../../../shared';
 import { HTTP_STATUS } from '../../../shared/status-code';
+import { requireAuth, requireGroups, withMiddleware } from '../../../middleware';
+import { env } from '../../../config/env';
 
 const addNoteSchema = z.object({
   content: z.string().min(1, 'Content is required'),
@@ -17,9 +19,9 @@ const addNoteHandler = withHttp(
   async (req: HttpRequest, ctx: InvocationContext): Promise<HttpResponseInit> => {
     const service = new TicketService(new TicketRepository());
     await service.init();
-    
+
     const id = req.params.id;
-    
+
     if (!id) {
       return fail(
         ctx,
@@ -31,11 +33,11 @@ const addNoteHandler = withHttp(
 
     try {
       const { content, type, createdBy, createdByName } = await parseJson(req, addNoteSchema);
-      
+
       const updatedTicket = await service.addNoteToTicket(id, content, type, createdBy, createdByName);
-      
+
       ctx.info(`Note added to ticket ${id}`);
-      
+
       const notes = updatedTicket.notes || [];
       return ok(ctx, {
         ticketId: updatedTicket.id,
@@ -56,9 +58,14 @@ const addNoteHandler = withHttp(
   },
 );
 
+const handler = withMiddleware(
+  [requireGroups([env.groups.maintenance]), requireAuth()],
+  addNoteHandler,
+);
+
 app.http('ticket-notes-add', {
   methods: ['POST'],
   authLevel: 'anonymous',
   route: 'v1/tickets/{id}/notes',
-  handler: addNoteHandler,
+  handler: handler,
 });

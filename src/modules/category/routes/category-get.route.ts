@@ -2,13 +2,15 @@
 import { z } from 'zod';
 import { app, HttpRequest, HttpResponseInit, InvocationContext } from '@azure/functions';
 import { withHttp, ok } from '../../../shared';
+import { requireAuth, requireGroups, withMiddleware } from '../../../middleware';
+import { env } from '../../../config/env';
 import { CategoryService } from '../category.service';
 import { CategoryRepository } from '../category.repository';
 import { CategoryRoutes } from './index';
 
 const Params = z.object({ id: z.string().trim().toUpperCase() });
 
-const handler = withHttp(async (req, ctx): Promise<HttpResponseInit> => {
+const originalHandler = withHttp(async (req, ctx): Promise<HttpResponseInit> => {
   const { id } = Params.parse(req.params);
   const svc = await new CategoryService(new CategoryRepository()).init();
   const item = await svc.getCategory(id);
@@ -24,6 +26,11 @@ const handler = withHttp(async (req, ctx): Promise<HttpResponseInit> => {
   }
   return ok(ctx, item);
 });
+
+const handler = withMiddleware(
+  [requireGroups([env.groups.maintenance]), requireAuth()],
+  originalHandler,
+);
 
 app.http('category-get', {
   methods: ['GET'],

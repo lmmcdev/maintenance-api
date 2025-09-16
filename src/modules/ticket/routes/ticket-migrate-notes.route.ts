@@ -4,6 +4,8 @@ import { TicketService } from '../ticket.service';
 import { TicketRepository } from '../ticket.repository';
 import { withHttp, ok, fail } from '../../../shared';
 import { HTTP_STATUS } from '../../../shared/status-code';
+import { requireAuth, requireGroups, withMiddleware } from '../../../middleware';
+import { env } from '../../../config/env';
 
 const migrateNotesHandler = withHttp(
   async (req: HttpRequest, ctx: InvocationContext): Promise<HttpResponseInit> => {
@@ -28,7 +30,7 @@ const migrateNotesHandler = withHttp(
       }
 
       ctx.info(`Migration completed. ${migratedCount} tickets migrated out of ${allTickets.length} total tickets.`);
-      
+
       return ok(ctx, {
         totalTickets: allTickets.length,
         migratedTickets: migratedCount,
@@ -47,9 +49,14 @@ const migrateNotesHandler = withHttp(
   },
 );
 
+const handler = withMiddleware(
+  [requireGroups([env.groups.maintenance]), requireAuth()],
+  migrateNotesHandler,
+);
+
 app.http('ticket-migrate-notes', {
   methods: ['POST'],
   authLevel: 'anonymous',
   route: 'v1/tickets/migrate/notes',
-  handler: migrateNotesHandler,
+  handler: handler,
 });

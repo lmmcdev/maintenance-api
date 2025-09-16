@@ -4,14 +4,16 @@ import { TicketService } from '../ticket.service';
 import { TicketRepository } from '../ticket.repository';
 import { withHttp, ok, fail } from '../../../shared';
 import { HTTP_STATUS } from '../../../shared/status-code';
+import { requireAuth, requireGroups, withMiddleware } from '../../../middleware';
+import { env } from '../../../config/env';
 
 const getNotesHandler = withHttp(
   async (req: HttpRequest, ctx: InvocationContext): Promise<HttpResponseInit> => {
     const service = new TicketService(new TicketRepository());
     await service.init();
-    
+
     const id = req.params.id;
-    
+
     if (!id) {
       return fail(
         ctx,
@@ -23,14 +25,14 @@ const getNotesHandler = withHttp(
 
     try {
       const notes = await service.getTicketNotes(id);
-      
+
       // Ordenar notas por fecha de creación (más recientes primero)
-      const sortedNotes = notes.sort((a, b) => 
+      const sortedNotes = notes.sort((a, b) =>
         new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
       );
-      
+
       ctx.info(`Retrieved ${notes.length} notes for ticket ${id}`);
-      
+
       return ok(ctx, {
         ticketId: id,
         notes: sortedNotes,
@@ -49,9 +51,14 @@ const getNotesHandler = withHttp(
   },
 );
 
+const handler = withMiddleware(
+  [requireGroups([env.groups.maintenance]), requireAuth()],
+  getNotesHandler,
+);
+
 app.http('ticket-notes-get', {
   methods: ['GET'],
   authLevel: 'anonymous',
   route: 'v1/tickets/{id}/notes',
-  handler: getNotesHandler,
+  handler: handler,
 });

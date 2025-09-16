@@ -2,6 +2,8 @@
 import { z } from 'zod';
 import { app, HttpRequest, HttpResponseInit, InvocationContext } from '@azure/functions';
 import { withHttp, ok, parseJson, TicketStatus } from '../../../shared';
+import { requireAuth, requireGroups, withMiddleware } from '../../../middleware';
+import { env } from '../../../config/env';
 
 import { UpdateStatusDto } from '../dtos/ticket-status.dto';
 import { TicketService } from '../ticket.service';
@@ -37,9 +39,14 @@ const updateTicketStatusHandler = withHttp(
   },
 );
 
+const handler = withMiddleware(
+  [requireGroups([env.groups.maintenance]), requireAuth()],
+  updateTicketStatusHandler,
+);
+
 app.http('tickets-status', {
   methods: ['PATCH'],
   authLevel: 'anonymous',
   route: TicketRoutes.status,
-  handler: updateTicketStatusHandler,
+  handler,
 });
