@@ -17,6 +17,7 @@ import {
   requireGroups,
 } from '../../../middleware';
 import { env } from '../../../config/env';
+import { LocationService } from '../../location/location.service';
 
 const ParamsSchema = z.object({ id: z.uuid() });
 
@@ -78,11 +79,32 @@ const updateTicketHandler = withHttp(
       }
     }
 
-    const payload: Partial<TicketModel> = {
+    // --- resolver locationId → LocationRef (y sincronizar ambos campos del modelo) ---
+    let locationsPatch = {};
+    if (patch.locationsIds) {
+      const locationService = new LocationService();
+      const locationRefs = await Promise.all(
+        patch.locationsIds.map(async (loc) => {
+          const location = await locationService.getLocation(loc.locationTypeId, loc.locationId);
+          if (!location) {
+            throw new Error(`Location with typeId ${loc.locationTypeId} and id ${loc.locationId} not found`);
+          }
+          return {
+            id: loc.locationId,
+            locationTypeId: loc.locationTypeId,
+            location,
+          };
+        }),
+      );
+      locationsPatch = { locations: locationRefs };
+    }
+
+    const payload = {
       ...patch,
       ...computed,
       ...assigneePatch,
-    };
+      ...locationsPatch,
+    } as Partial<TicketModel>;
 
     const updated = await ticketService.updateTicket(id, payload);
     return ok(ctx, updated);

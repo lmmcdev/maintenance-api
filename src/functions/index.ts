@@ -33,3 +33,6 @@ import '../modules/category/routes/subcategory-add.route';
 import '../modules/category/routes/subcategory-update.route';
 import '../modules/category/routes/subcategory-delete.route';
 import '../modules/category/routes/category-seed.route';
+
+// locations - route
+import '../modules/location/routes/location-list.route';

@@ -24,6 +24,10 @@ export const UpdateTicketDto = z
 
     assigneeIds: z.array(z.uuid()).nullable().optional(),
 
+    reporterId: z.uuid().nullable().optional(),
+
+    locationsIds: z.array(z.object({ locationTypeId: z.uuid(), locationId: z.uuid() })).optional(),
+
     resolvedAt: z.iso.datetime({ offset: true }).nullable().optional(),
     closedAt: z.iso.datetime({ offset: true }).nullable().optional(),
   })

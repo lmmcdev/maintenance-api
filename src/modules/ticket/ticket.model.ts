@@ -77,85 +77,6 @@ function findLocationByEmail(email: string): LocationRef | null {
   return null;
 }
 
-// Simple person mock for testing
-const PERSON_MOCK: PersonModel[] = [
-  // Maintenance Brigade Personnel
-  {
-    id: 'person-001',
-    createdAt: '2024-01-01T00:00:00.000Z',
-    updatedAt: '2024-01-01T00:00:00.000Z',
-    firstName: 'Juan',
-    lastName: 'Rodriguez',
-    phoneNumber: '7866516453',
-    email: 'juan.rodriguez@maintenance.com',
-    role: 'TECHNICIAN' as any,
-    department: Department.MAINTENANCE,
-  },
-  {
-    id: 'person-002',
-    createdAt: '2024-01-01T00:00:00.000Z',
-    updatedAt: '2024-01-01T00:00:00.000Z',
-    firstName: 'Maria',
-    lastName: 'Gonzalez',
-    phoneNumber: '3058795229',
-    email: 'maria.gonzalez@maintenance.com',
-    role: 'SUPERVISOR' as any,
-    department: Department.MAINTENANCE,
-  },
-  // Location Personnel
-  {
-    id: 'person-003',
-    createdAt: '2024-01-01T00:00:00.000Z',
-    updatedAt: '2024-01-01T00:00:00.000Z',
-    firstName: 'Carlos',
-    lastName: 'Martinez',
-    phoneNumber: '5638',
-    email: 'carlos@central.com',
-    role: 'SUPERVISOR' as any,
-    department: Department.LOCATION,
-    locationId: 'loc-001',
-  },
-  {
-    id: 'person-004',
-    createdAt: '2024-01-01T00:00:00.000Z',
-    updatedAt: '2024-01-01T00:00:00.000Z',
-    firstName: 'Ana',
-    lastName: 'Lopez',
-    phoneNumber: '1234',
-    email: 'ana@norte.com',
-    role: 'TECHNICIAN' as any,
-    department: Department.LOCATION,
-    locationId: 'loc-002',
-  },
-];
-
-// Function to find maintenance brigade personnel by phone
-function findBrigadePersonByPhone(phoneNumber: string): PersonModel | null {
-  const cleanedPhoneNumber = phoneNumber.replace(/\D/g, '');
-  return (
-    PERSON_MOCK.find(
-      (person) =>
-        person.department === Department.MAINTENANCE && person.phoneNumber === cleanedPhoneNumber,
-    ) || null
-  );
-}
-
-// Function to find location personnel by phone
-function findLocationPersonByPhone(phoneNumber: string): PersonModel | null {
-  const cleanedPhoneNumber = phoneNumber.replace(/\D/g, '');
-  return (
-    PERSON_MOCK.find(
-      (person) =>
-        person.department === Department.LOCATION && person.phoneNumber === cleanedPhoneNumber,
-    ) || null
-  );
-}
-
-// Function to find person by email (any department)
-function findPersonByEmail(email: string): PersonModel | null {
-  return PERSON_MOCK.find((person) => person.email === email) || null;
-}
-
 export interface TicketNote {
   id: string;
   content: string;
@@ -190,8 +111,7 @@ export interface TicketModel extends BaseDocument {
   reporterId?: string;
   reporter?: PersonModel;
 
-  locationId?: string;
-  location?: LocationRef;
+  locations?: LocationRef[];
 
   source: TicketSource;
 
@@ -280,35 +200,6 @@ export function createNewTicket(
   let assignedReporter: PersonModel | null = null;
   let assignedLocation: LocationRef | null = null;
 
-  // First try to find person by phone number
-  if (phoneNumber) {
-    // Check both brigade and location personnel
-    assignedReporter =
-      findBrigadePersonByPhone(phoneNumber) || findLocationPersonByPhone(phoneNumber);
-
-    // If person is from a location, get their location
-    if (assignedReporter?.department === Department.LOCATION && assignedReporter.locationId) {
-      assignedLocation =
-        LOCATION_MOCK.find((loc) => loc.id === assignedReporter!.locationId) || null;
-    }
-
-    // If no person found, try to find location directly by phone
-    if (!assignedReporter) {
-      assignedLocation = findLocationByPhone(phoneNumber);
-    }
-  }
-
-  // If no reporter found by phone and email is provided, try email
-  if (!assignedReporter && reporter?.email) {
-    assignedReporter = findPersonByEmail(reporter.email);
-
-    // If person is from a location, get their location
-    if (assignedReporter?.department === Department.LOCATION && assignedReporter.locationId) {
-      assignedLocation =
-        LOCATION_MOCK.find((loc) => loc.id === assignedReporter!.locationId) || null;
-    }
-  }
-
   // If still no location and email provided, try location by email domain
   if (!assignedLocation && reporter?.email) {
     assignedLocation = findLocationByEmail(reporter.email);
@@ -357,8 +248,7 @@ export function createNewTicket(
     reporterId: opts?.reporterId || finalReporter?.id,
     reporter: finalReporter,
 
-    locationId: opts?.locationId || finalLocation?.id,
-    location: finalLocation,
+    locations: [],
 
     source,
 

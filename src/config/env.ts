@@ -10,6 +10,7 @@ export const env = {
     ticketRoute: process.env.TICKET_ROUTE ?? 'tickets',
     personRoute: process.env.PERSON_ROUTE ?? 'persons',
     categoryRoute: process.env.CATEGORY_ROUTE ?? 'categories',
+    locationRoute: process.env.LOCATION_ROUTE ?? 'locations',
   },
   cosmosDB: {
     endpoint: process.env.COSMOS_DB_ENDPOINT,
@@ -29,5 +30,8 @@ export const env = {
   },
   groups: {
     maintenance: process.env.GROUP_MAINTENANCE_ID ?? 'app-maintenance-group',
+  },
+  externalServices: {
+    locationServiceUrl: process.env.LOCATION_API_BASE_URL ?? 'http://localhost:7072',
   },
 };
