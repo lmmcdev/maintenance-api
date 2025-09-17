@@ -30,4 +30,7 @@ export const env = {
   groups: {
     maintenance: process.env.GROUP_MAINTENANCE_ID ?? 'app-maintenance-group',
   },
+  externalServices: {
+    locationServiceUrl: process.env.LOCATION_API_BASE_URL ?? 'http://localhost:7072',
+  },
 };
