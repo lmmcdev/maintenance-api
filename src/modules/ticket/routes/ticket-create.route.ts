@@ -70,14 +70,9 @@ const createTicketHandler = withHttp(
   },
 );
 
-const handler = withMiddleware(
-  [requireGroups([env.groups.maintenance]), requireAuth()],
-  createTicketHandler,
-);
-
 app.http('tickets-create', {
   methods: ['POST'],
   authLevel: 'anonymous',
   route: TicketRoutes.create,
-  handler,
+  handler: createTicketHandler,
 });

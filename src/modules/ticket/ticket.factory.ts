@@ -45,7 +45,7 @@ export class TicketFactory {
       reporter: reporter as PersonModel,
       assigneeIds: [],
       assignees: [],
-      location: reporter?.location || undefined,
+      locations: [],
       source: TicketSource.EMAIL,
       attachments,
       notes: [],
@@ -194,7 +194,6 @@ export class TicketFactory {
         category: baseTicket.category || undefined,
         subcategory: baseTicket.subcategory || undefined,
         reporter: baseTicket.reporter,
-        location: baseTicket.location,
       },
     );
 
