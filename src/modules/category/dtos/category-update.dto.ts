@@ -7,7 +7,7 @@ export const CategoryUpdateDto = z
     displayName: z.string().trim().min(1).optional(),
     description: z.string().trim().max(500).optional(),
     isActive: z.boolean().optional(),
-    subcategories: z.array(SubcategoryCreateSchema).optional(), // reemplazo total si lo envías
+    subcategories: z.array(SubcategoryCreateSchema).optional(),
   })
   .strict()
   .refine((v) => Object.values(v).some((x) => x !== undefined), {
