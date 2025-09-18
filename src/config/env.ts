@@ -34,4 +34,8 @@ export const env = {
   externalServices: {
     locationServiceUrl: process.env.LOCATION_API_BASE_URL ?? 'http://localhost:7072',
   },
+  storage: {
+    connectionString: process.env.AZURE_STORAGE_CONNECTION_STRING,
+    containerName: process.env.AZURE_STORAGE_CONTAINER_NAME ?? 'maintenance',
+  },
 };

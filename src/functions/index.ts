@@ -36,3 +36,12 @@ import '../modules/category/routes/category-seed.route';
 
 // locations - route
 import '../modules/location/routes/location-list.route';
+
+// attachments - route
+import '../modules/attachment/routes/attachment-upload.route';
+import '../modules/attachment/routes/attachment-list.route';
+import '../modules/attachment/routes/attachment-get.route';
+import '../modules/attachment/routes/attachment-download.route';
+import '../modules/attachment/routes/attachment-migrate.route';
+import '../modules/attachment/routes/attachment-migrate-all.route';
+import '../modules/attachment/routes/attachment-delete.route';
