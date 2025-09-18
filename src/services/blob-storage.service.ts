@@ -38,9 +38,12 @@ export class BlobStorageService {
     contentType: string,
     ticketId: string,
     attachmentId: string,
+    folderPath?: string,
   ): Promise<UploadResult> {
-    const today = new Date().toISOString().split('T')[0]; // YYYY-MM-DD format
-    const blobName = `tickets/${today}/${filename}`;
+    // Use custom folder path or default to date-based structure
+    const defaultPath = `tickets/${new Date().toISOString().split('T')[0]}`;
+    const blobPath = folderPath || defaultPath;
+    const blobName = `${blobPath}/${filename}`;
     const blockBlobClient: BlockBlobClient = this.containerClient.getBlockBlobClient(blobName);
 
     try {
@@ -73,8 +76,8 @@ export class BlobStorageService {
     }
   }
 
-  async deleteFile(uploadDate: string, filename: string): Promise<boolean> {
-    const blobName = `tickets/${uploadDate}/${filename}`;
+  async deleteFile(folderPath: string, filename: string): Promise<boolean> {
+    const blobName = `${folderPath}/${filename}`;
     const blockBlobClient: BlockBlobClient = this.containerClient.getBlockBlobClient(blobName);
 
     try {
@@ -86,14 +89,14 @@ export class BlobStorageService {
     }
   }
 
-  async getFileUrl(uploadDate: string, filename: string): Promise<string> {
-    const blobName = `tickets/${uploadDate}/${filename}`;
+  async getFileUrl(folderPath: string, filename: string): Promise<string> {
+    const blobName = `${folderPath}/${filename}`;
     const blockBlobClient: BlockBlobClient = this.containerClient.getBlockBlobClient(blobName);
     return blockBlobClient.url;
   }
 
-  async fileExists(uploadDate: string, filename: string): Promise<boolean> {
-    const blobName = `tickets/${uploadDate}/${filename}`;
+  async fileExists(folderPath: string, filename: string): Promise<boolean> {
+    const blobName = `${folderPath}/${filename}`;
     const blockBlobClient: BlockBlobClient = this.containerClient.getBlockBlobClient(blobName);
 
     try {

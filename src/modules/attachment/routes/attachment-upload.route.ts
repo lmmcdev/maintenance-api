@@ -86,6 +86,7 @@ const uploadAttachmentHandler = withHttp(
       let fileBuffer: Buffer;
       let filename: string;
       let fileContentType: string;
+      let folderPath: string | undefined;
 
       if (contentType.includes('multipart/form-data')) {
         // Handle FormData uploads
@@ -99,6 +100,7 @@ const uploadAttachmentHandler = withHttp(
         filename = fields.filename || file.filename;
         fileContentType = fields.contentType || file.contentType;
         fileBuffer = file.buffer;
+        folderPath = fields.folderPath;
 
       } else {
         // Handle binary uploads (like your curl command)
@@ -110,6 +112,9 @@ const uploadAttachmentHandler = withHttp(
 
         // Use the Content-Type header or derive from filename
         fileContentType = contentType || getContentTypeFromFilename(filename);
+
+        // Get folderPath from query parameter
+        folderPath = req.query.get('folderPath') || undefined;
 
         // If no extension in filename and we have a content type, add extension
         if (!filename.includes('.') && fileContentType !== 'application/octet-stream') {
@@ -132,6 +137,7 @@ const uploadAttachmentHandler = withHttp(
         ticketId,
         filename,
         contentType: fileContentType,
+        folderPath,
       };
 
       const validatedRequest = AttachmentUploadRequestSchema.parse(uploadRequest);
