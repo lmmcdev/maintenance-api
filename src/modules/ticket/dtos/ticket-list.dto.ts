@@ -2,12 +2,12 @@
 import { z } from 'zod';
 import { TicketStatus, TicketPriority, TicketCategory } from '../../../shared';
 
-// Fecha en DD-MM-YYYY → Date
-export const DateDDMMYYYY = z
+// Fecha en YYYY-MM-DD → Date
+export const DateYYYYMMDD = z
   .string()
-  .regex(/^\d{2}-\d{2}-\d{4}$/, 'Formato esperado DD-MM-YYYY')
+  .regex(/^\d{4}-\d{2}-\d{2}$/, 'Formato esperado YYYY-MM-DD')
   .transform((s) => {
-    const [dd, mm, yyyy] = s.split('-').map(Number);
+    const [yyyy, mm, dd] = s.split('-').map(Number);
     const d = new Date(Date.UTC(yyyy, mm - 1, dd));
     if (Number.isNaN(d.getTime())) throw new Error('Fecha inválida');
     return d;
@@ -35,9 +35,9 @@ export const ListTicketsQueryDto = z
     priority: PriorityParam.optional(),
     category: CategoryParam.optional(),
 
-    // Rango por fecha de creación (DD-MM-YYYY)
-    createdFrom: DateDDMMYYYY.optional(),
-    createdTo: DateDDMMYYYY.optional(),
+    // Rango por fecha de creación (YYYY-MM-DD)
+    createdFrom: DateYYYYMMDD.optional(),
+    createdTo: DateYYYYMMDD.optional(),
 
     // Orden
     sortBy: z.enum(['createdAt', 'updatedAt']).default('createdAt'),
