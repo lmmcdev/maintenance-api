@@ -21,7 +21,7 @@ export class AttachmentService {
     uploadData: AttachmentUploadRequest,
     fileBuffer: Buffer,
   ): Promise<AttachmentRef> {
-    const { ticketId, filename, contentType } = uploadData;
+    const { ticketId, filename, contentType, folderPath } = uploadData;
 
     const ticket = await this.ticketService.getById(ticketId);
     if (!ticket) {
@@ -30,7 +30,7 @@ export class AttachmentService {
 
     const attachmentId = crypto.randomUUID();
     const now = new Date().toISOString();
-    const uploadDate = now.split('T')[0]; // YYYY-MM-DD format
+    const uploadDate = now.split('T')[0]; // YYYY-MM-DD format (for legacy compatibility)
 
     // Upload file to Azure Blob Storage
     const uploadResult = await this.blobStorageService.uploadFile(
@@ -39,6 +39,7 @@ export class AttachmentService {
       contentType,
       ticketId,
       attachmentId,
+      folderPath,
     );
 
     const attachment: AttachmentRef = {
@@ -48,7 +49,8 @@ export class AttachmentService {
       size: uploadResult.size,
       url: uploadResult.url,
       uploadedAt: now,
-      uploadDate: uploadDate,
+      uploadDate: uploadDate, // Keep for legacy compatibility
+      folderPath: folderPath || `tickets/${uploadDate}`, // Store the actual folder path used
     };
 
     const updatedAttachments = [...(ticket.attachments || []), attachment];
@@ -76,9 +78,10 @@ export class AttachmentService {
 
     const attachment = ticket.attachments[attachmentIndex];
 
-    // Delete file from Azure Blob Storage
-    if (attachment.uploadDate) {
-      await this.blobStorageService.deleteFile(attachment.uploadDate, attachment.filename);
+    // Delete file from Azure Blob Storage using folderPath or fallback to uploadDate
+    const folderPath = attachment.folderPath || attachment.uploadDate;
+    if (folderPath) {
+      await this.blobStorageService.deleteFile(folderPath, attachment.filename);
     }
 
     const updatedAttachments = ticket.attachments.filter(att => att.id !== attachmentId);
@@ -131,8 +134,9 @@ export class AttachmentService {
     }
 
     // Ensure URL is current (in case blob URL format changes)
-    if (!attachment.url && attachment.uploadDate) {
-      attachment.url = await this.blobStorageService.getFileUrl(attachment.uploadDate, attachment.filename);
+    const folderPath = attachment.folderPath || attachment.uploadDate;
+    if (!attachment.url && folderPath) {
+      attachment.url = await this.blobStorageService.getFileUrl(folderPath, attachment.filename);
     }
 
     return attachment;
@@ -140,10 +144,11 @@ export class AttachmentService {
 
   async getAttachmentDownloadUrl(ticketId: string, attachmentId: string): Promise<string> {
     const attachment = await this.getAttachment(ticketId, attachmentId);
-    if (!attachment.uploadDate) {
-      throw new Error('Upload date not available for attachment');
+    const folderPath = attachment.folderPath || attachment.uploadDate;
+    if (!folderPath) {
+      throw new Error('Folder path not available for attachment');
     }
-    return await this.blobStorageService.getFileUrl(attachment.uploadDate, attachment.filename);
+    return await this.blobStorageService.getFileUrl(folderPath, attachment.filename);
   }
 
   // Helper method to migrate legacy attachments
