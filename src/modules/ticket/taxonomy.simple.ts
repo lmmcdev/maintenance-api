@@ -9,7 +9,7 @@ export enum TicketCategory {
   CORRECTIVE = 'CORRECTIVE',
   EMERGENCY = 'EMERGENCY',
   DEFERRED = 'DEFERRED',
-  OTRO = 'OTRO',
+  OTHER = 'OTHER',
 }
 
 /**
@@ -28,7 +28,7 @@ export type SubcategoryName =
   | 'DOORS'
   | 'CORROSION'
   | 'FURNITURE'
-  | 'OTRO';
+  | 'OTHER';
 
 /* =========================
  *   Zod Schemas & Types
@@ -46,7 +46,7 @@ export const SubcategoryNameSchema = z.enum([
   'DOORS',
   'CORROSION',
   'FURNITURE',
-  'OTRO',
+  'OTHER',
 ]);
 
 export const SimpleSubcategorySchema = z.object({
