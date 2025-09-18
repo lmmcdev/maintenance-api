@@ -396,6 +396,157 @@
       ]
     },
     {
+      "name": "Attachments",
+      "item": [
+        {
+          "name": "Upload Attachment (FormData)",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "file",
+                  "type": "file",
+                  "src": [],
+                  "description": "The file to upload (required)"
+                },
+                {
+                  "key": "filename",
+                  "value": "example-file.pdf",
+                  "type": "text",
+                  "description": "Custom filename (optional, defaults to file.name)"
+                },
+                {
+                  "key": "contentType",
+                  "value": "application/pdf",
+                  "type": "text",
+                  "description": "Content type (optional, defaults to file.type)"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/{{apiVersion}}/tickets/{{ticketId}}/attachments",
+              "host": ["{{baseUrl}}"],
+              "path": ["{{apiVersion}}", "tickets", "{{ticketId}}", "attachments"]
+            },
+            "description": "Upload a file attachment using multipart/form-data. The file will be stored in Azure Blob Storage and associated with the ticket."
+          }
+        },
+        {
+          "name": "Upload Attachment (Binary)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/pdf",
+                "description": "Set to the actual MIME type of the file"
+              }
+            ],
+            "body": {
+              "mode": "file",
+              "file": {
+                "src": ""
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/{{apiVersion}}/tickets/{{ticketId}}/attachments?filename=scan0050.pdf",
+              "host": ["{{baseUrl}}"],
+              "path": ["{{apiVersion}}", "tickets", "{{ticketId}}", "attachments"],
+              "query": [
+                {
+                  "key": "filename",
+                  "value": "scan0050.pdf",
+                  "description": "Filename for the uploaded file"
+                }
+              ]
+            },
+            "description": "Upload a file attachment using binary data. Set Content-Type header to file's MIME type and filename as query parameter. Compatible with curl --data-binary."
+          }
+        },
+        {
+          "name": "List Ticket Attachments",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/{{apiVersion}}/tickets/{{ticketId}}/attachments",
+              "host": ["{{baseUrl}}"],
+              "path": ["{{apiVersion}}", "tickets", "{{ticketId}}", "attachments"]
+            },
+            "description": "Get all attachments for a specific ticket. Returns an array of attachment metadata."
+          }
+        },
+        {
+          "name": "Get Attachment by ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/{{apiVersion}}/tickets/{{ticketId}}/attachments/{{attachmentId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["{{apiVersion}}", "tickets", "{{ticketId}}", "attachments", "{{attachmentId}}"]
+            },
+            "description": "Get metadata for a specific attachment by its ID within a ticket."
+          }
+        },
+        {
+          "name": "Download Attachment",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/{{apiVersion}}/tickets/{{ticketId}}/attachments/{{attachmentId}}/download",
+              "host": ["{{baseUrl}}"],
+              "path": ["{{apiVersion}}", "tickets", "{{ticketId}}", "attachments", "{{attachmentId}}", "download"]
+            },
+            "description": "Download the actual file content. Returns a redirect (302) to the Azure Blob Storage URL."
+          }
+        },
+        {
+          "name": "Migrate Legacy Attachments",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/{{apiVersion}}/tickets/{{ticketId}}/attachments/migrate",
+              "host": ["{{baseUrl}}"],
+              "path": ["{{apiVersion}}", "tickets", "{{ticketId}}", "attachments", "migrate"]
+            },
+            "description": "Migrate legacy attachments in a ticket to the new format. Fixes content types based on file extensions, generates proper URLs, and replaces base64 encoded IDs with UUIDs."
+          }
+        },
+        {
+          "name": "Migrate All Legacy Attachments",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/{{apiVersion}}/attachments/migrate-all",
+              "host": ["{{baseUrl}}"],
+              "path": ["{{apiVersion}}", "attachments", "migrate-all"]
+            },
+            "description": "Migrate all legacy attachments across all tickets in the system. This is a bulk operation that will fix content types, generate proper URLs, and replace base64 encoded IDs with UUIDs for all tickets with attachments."
+          }
+        },
+        {
+          "name": "Delete Attachment",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/{{apiVersion}}/tickets/{{ticketId}}/attachments/{{attachmentId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["{{apiVersion}}", "tickets", "{{ticketId}}", "attachments", "{{attachmentId}}"]
+            },
+            "description": "Delete a specific attachment from a ticket. This removes the attachment reference from the ticket's attachments array."
+          }
+        }
+      ]
+    },
+    {
       "name": "Auth",
       "item": [
         {
@@ -431,6 +582,11 @@
     },
     {
       "key": "personId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "attachmentId",
       "value": "",
       "type": "string"
     }
