@@ -7,6 +7,7 @@ import { withHttp, ok, fail } from '../../../shared';
 import { HTTP_STATUS } from '../../../shared/status-code';
 import { requireAuth, requireGroups, withMiddleware } from '../../../middleware';
 import { env } from '../../../config/env';
+import { EmailNotificationService } from '../../../services/email-notification.service';
 
 const cancelSchema = z
   .object({
@@ -75,6 +76,18 @@ const cancelTicketHandler = withHttp(
           cancelData?.reason ? ' with reason: ' + cancelData.reason : ''
         }`,
       );
+
+      if (ticket.source === 'EMAIL') {
+        const emailService = new EmailNotificationService();
+        const emailData = {
+          to_user: ticket.reporter?.email || '',
+          email_subject: `Your ticket ${id} has been cancelled`,
+          email_body: `Hello ${
+            ticket.reporter?.firstName || 'User'
+          },\n\nYour ticket with ID ${id} has been cancelled.\n\nThank you.`,
+        };
+        await emailService.sendEmail(emailData);
+      }
 
       return ok(ctx, {
         id: updatedTicket.id,

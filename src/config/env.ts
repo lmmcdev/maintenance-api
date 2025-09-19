@@ -33,6 +33,8 @@ export const env = {
   },
   externalServices: {
     locationServiceUrl: process.env.LOCATION_API_BASE_URL ?? 'http://localhost:7072',
+    sendEmailFunctionUrl:
+      process.env.SEND_EMAIL_FUNCTION_URL ?? 'http://localhost:7071/api/send-email',
   },
   storage: {
     connectionString: process.env.AZURE_STORAGE_CONNECTION_STRING,

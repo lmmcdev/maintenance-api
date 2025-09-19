@@ -14,8 +14,10 @@ import { PersonModel } from '../person/person.model';
 import { LocationRef } from '../location/location.model';
 import { TicketPriority } from '../../shared';
 import { TicketCategory, SubcategoryName } from './taxonomy.simple';
+import { EmailNotificationService } from '../../services/email-notification.service';
 
 export class TicketService {
+  private emailNotificationService: EmailNotificationService = new EmailNotificationService();
   constructor(private ticketRepository: TicketRepository) {}
 
   async init() {
@@ -44,11 +46,25 @@ export class TicketService {
     switch (source) {
       case TicketSource.RINGCENTRAL:
         // Usar la función con migración automática para RingCentral
-        ticket = await TicketFactory.createFromRingCentralWithMigration(audio, description, fromText, attachments);
+        ticket = await TicketFactory.createFromRingCentralWithMigration(
+          audio,
+          description,
+          fromText,
+          attachments,
+        );
         break;
       case TicketSource.EMAIL:
         // Usar la función con migración automática para emails
-        ticket = await TicketFactory.createFromEmailWithMigration(description, reporter, attachments);
+        ticket = await TicketFactory.createFromEmailWithMigration(
+          description,
+          reporter,
+          attachments,
+        );
+        this.emailNotificationService.sendEmail({
+          to_user: reporter?.email || '',
+          email_subject: 'New Ticket Created',
+          email_body: `A new ticket has been created: ${ticket.id}`,
+        });
         break;
       case TicketSource.WEB:
         ticket = TicketFactory.createFromWeb('Web Ticket', description, undefined, undefined, {
@@ -56,7 +72,11 @@ export class TicketService {
         });
         break;
       default:
-        ticket = await TicketFactory.createFromEmailWithMigration(description, reporter, attachments);
+        ticket = await TicketFactory.createFromEmailWithMigration(
+          description,
+          reporter,
+          attachments,
+        );
     }
 
     return this.ticketRepository.create(ticket);

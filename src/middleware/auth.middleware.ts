@@ -153,7 +153,7 @@ export async function authenticateUser(
       groups: userGroups,
     };
 
-    ctx.log('Extracted user:', JSON.stringify(user, null, 2));
+    // ctx.log('Extracted user:', JSON.stringify(user, null, 2));
     return user;
   } catch (error) {
     ctx.error('Authentication error:', error);
