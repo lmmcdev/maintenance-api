@@ -26,7 +26,11 @@ const createTicketHandler = withHttp(
     if (audioString) {
       try {
         const parsed = JSON.parse(audioString);
-        if (parsed && typeof parsed === 'object') {
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          // Si es un array, tomar el primer elemento
+          audio = parsed[0];
+        } else if (parsed && typeof parsed === 'object') {
+          // Si es un objeto directo
           audio = parsed;
         }
       } catch (error) {

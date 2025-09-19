@@ -10,6 +10,7 @@ import {
   createNewTicket,
   createTicketNote,
 } from './ticket.model';
+import { FileMigrationService } from '../../services/file-migration.service';
 
 export class TicketFactory {
   static createFromRingCentral(
@@ -26,6 +27,47 @@ export class TicketFactory {
       TicketSource.RINGCENTRAL,
       attachments,
     );
+  }
+
+  static async createFromRingCentralWithMigration(
+    audio: AttachmentRef | null,
+    description: string,
+    fromText: string,
+    attachments: AttachmentRef[] = [],
+  ): Promise<TicketModel> {
+    const ticket = TicketFactory.createFromRingCentral(audio, description, fromText, attachments);
+
+    // Si hay audio o attachments, verificar y migrar los que sean legacy
+    if (audio || attachments.length > 0) {
+      try {
+        const migrationService = new FileMigrationService();
+        await migrationService.init();
+
+        // Combinar audio y attachments para migrar todos juntos
+        const allAttachments = audio ? [audio, ...attachments] : attachments;
+
+        const migratedAttachments = await migrationService.migrateTicketAttachments(
+          ticket.id,
+          allAttachments,
+          ticket.createdAt.split('T')[0], // Usar fecha de creación del ticket
+        );
+
+        ticket.updatedAt = new Date().toISOString();
+
+        // Actualizar audio migrado (primer attachment si había audio original)
+        if (audio) {
+          ticket.audio = migratedAttachments[0] || null;
+        }
+      } catch (error) {
+        console.error('Error migrating attachments for RingCentral ticket:', error);
+        // En caso de error, mantener attachments originales
+        console.warn(
+          'Keeping original attachments due to migration error - ticket will be created with legacy attachment references',
+        );
+      }
+    }
+
+    return ticket;
   }
 
   static createFromEmail(
@@ -55,6 +97,43 @@ export class TicketFactory {
       closedAt: null,
     };
     return newTicket;
+  }
+
+  /**
+   * Crea un ticket desde email con migración automática de attachments legacy
+   */
+  static async createFromEmailWithMigration(
+    description: string,
+    reporter?: Partial<PersonModel>,
+    attachments: AttachmentRef[] = [],
+  ): Promise<TicketModel> {
+    const ticket = TicketFactory.createFromEmail(description, reporter, attachments);
+
+    // Si hay attachments, verificar y migrar los que sean legacy
+    if (attachments.length > 0) {
+      try {
+        const migrationService = new FileMigrationService();
+        await migrationService.init();
+
+        const migratedAttachments = await migrationService.migrateTicketAttachments(
+          ticket.id,
+          attachments,
+          ticket.createdAt.split('T')[0], // Usar fecha de creación del ticket
+        );
+
+        // Actualizar ticket con attachments migrados
+        ticket.attachments = migratedAttachments;
+        ticket.updatedAt = new Date().toISOString();
+      } catch (error) {
+        console.error('Error migrating attachments for email ticket:', error);
+        // En caso de error, mantener attachments originales
+        console.warn(
+          'Keeping original attachments due to migration error - ticket will be created with legacy attachment references',
+        );
+      }
+    }
+
+    return ticket;
   }
 
   static createFromWeb(

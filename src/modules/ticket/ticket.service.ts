@@ -43,10 +43,12 @@ export class TicketService {
 
     switch (source) {
       case TicketSource.RINGCENTRAL:
-        ticket = TicketFactory.createFromRingCentral(audio, description, fromText, attachments);
+        // Usar la función con migración automática para RingCentral
+        ticket = await TicketFactory.createFromRingCentralWithMigration(audio, description, fromText, attachments);
         break;
       case TicketSource.EMAIL:
-        ticket = TicketFactory.createFromEmail(description, reporter, attachments);
+        // Usar la función con migración automática para emails
+        ticket = await TicketFactory.createFromEmailWithMigration(description, reporter, attachments);
         break;
       case TicketSource.WEB:
         ticket = TicketFactory.createFromWeb('Web Ticket', description, undefined, undefined, {
@@ -54,7 +56,7 @@ export class TicketService {
         });
         break;
       default:
-        ticket = TicketFactory.createFromEmail(description, reporter, attachments);
+        ticket = await TicketFactory.createFromEmailWithMigration(description, reporter, attachments);
     }
 
     return this.ticketRepository.create(ticket);
