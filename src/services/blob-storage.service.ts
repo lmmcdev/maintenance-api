@@ -77,7 +77,12 @@ export class BlobStorageService {
   }
 
   async deleteFile(folderPath: string, filename: string): Promise<boolean> {
-    const blobName = `${folderPath}/${filename}`;
+    if (!filename || filename === 'undefined') {
+      console.error('Invalid filename provided to deleteFile:', filename);
+      return false;
+    }
+
+    const blobName = folderPath ? `${folderPath}/${filename}` : filename;
     const blockBlobClient: BlockBlobClient = this.containerClient.getBlockBlobClient(blobName);
 
     try {
@@ -90,13 +95,22 @@ export class BlobStorageService {
   }
 
   async getFileUrl(folderPath: string, filename: string): Promise<string> {
-    const blobName = `${folderPath}/${filename}`;
+    if (!filename || filename === 'undefined') {
+      throw new Error('Invalid filename provided to getFileUrl');
+    }
+
+    const blobName = folderPath ? `${folderPath}/${filename}` : filename;
     const blockBlobClient: BlockBlobClient = this.containerClient.getBlockBlobClient(blobName);
     return blockBlobClient.url;
   }
 
   async fileExists(folderPath: string, filename: string): Promise<boolean> {
-    const blobName = `${folderPath}/${filename}`;
+    if (!filename || filename === 'undefined') {
+      console.error('Invalid filename provided to fileExists:', filename);
+      return false;
+    }
+
+    const blobName = folderPath ? `${folderPath}/${filename}` : filename;
     const blockBlobClient: BlockBlobClient = this.containerClient.getBlockBlobClient(blobName);
 
     try {
@@ -105,6 +119,28 @@ export class BlobStorageService {
     } catch (error) {
       console.error('Error checking file existence:', error);
       return false;
+    }
+  }
+
+  async getFile(folderPath: string, filename: string): Promise<Buffer | null> {
+    if (!filename || filename === 'undefined') {
+      console.error('Invalid filename provided to getFile:', filename);
+      return null;
+    }
+
+    const blobName = folderPath ? `${folderPath}/${filename}` : filename;
+    const blockBlobClient: BlockBlobClient = this.containerClient.getBlockBlobClient(blobName);
+
+    try {
+      const downloadResponse = await blockBlobClient.download(0);
+      const chunks: Buffer[] = [];
+      for await (const chunk of downloadResponse.readableStreamBody!) {
+        chunks.push(typeof chunk === 'string' ? Buffer.from(chunk) : chunk);
+      }
+      return Buffer.concat(chunks);
+    } catch (error) {
+      console.error('Error downloading file from blob storage:', error);
+      return null;
     }
   }
 }
