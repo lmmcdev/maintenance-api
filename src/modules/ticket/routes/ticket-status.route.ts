@@ -10,8 +10,9 @@ import { TicketService } from '../ticket.service';
 import { TicketRepository } from '../ticket.repository';
 import { TicketModel } from '../ticket.model';
 import { TicketRoutes } from './index';
+import { EmailNotificationService } from '../../../services/email-notification.service';
 
-const ParamsSchema = z.object({ id: z.string().uuid() });
+const ParamsSchema = z.object({ id: z.uuid() });
 
 const updateTicketStatusHandler = withHttp(
   async (req: HttpRequest, ctx: InvocationContext): Promise<HttpResponseInit> => {
@@ -34,8 +35,23 @@ const updateTicketStatusHandler = withHttp(
       patch.resolvedAt = null;
     }
 
-    const updated = await service.updateTicket(id, patch);
-    return ok(ctx, updated);
+    const updatedTicket = await service.updateTicket(id, patch);
+    // Notificar por email si el ticket se cierra
+    if (updatedTicket) {
+      const { source, reporter, status } = updatedTicket;
+      if (source === 'EMAIL') {
+        const emailService = new EmailNotificationService();
+        const emailData = {
+          to_user: reporter?.email || '',
+          email_subject: `Your ticket ${id} status updated to ${status}`,
+          email_body: `Hello ${
+            reporter?.firstName || 'User'
+          },\n\nYour ticket with ID ${id} has been updated to status: ${status}.\n\nThank you.`,
+        };
+        await emailService.sendEmail(emailData);
+      }
+    }
+    return ok(ctx, updatedTicket);
   },
 );
 
